@@ -81,10 +81,10 @@ trip-protocol/
 
 | Contract | Network | Address | Status |
 |----------|---------|---------|--------|
-| TripExperience | Monad Testnet | `0x5E5df9162680d5e898e67a505345402B04983aa9` | ✅ Live |
+| TripExperience | Monad Testnet | `0x8E9257e777c64e30E373f7359ABF8301d749A521` | ✅ Live |
 
 **Test NFTs Minted:**
-- Token #0: "Ego Death" (potency 5, 24h duration)
+- Token #0: "Ego Death" (potency 5, 24h duration) - Owner: agent keystore
 
 ### Wallet
 

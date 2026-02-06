@@ -8,7 +8,7 @@ TOKEN_ID="${1:-}"
 DRY_RUN="${2:-}"
 
 # Configuration
-CONTRACT="${TRIP_CONTRACT:-0x5E5df9162680d5e898e67a505345402B04983aa9}"
+CONTRACT="${TRIP_CONTRACT:-0x8E9257e777c64e30E373f7359ABF8301d749A521}"
 RPC="${TRIP_RPC:-https://testnet-rpc.monad.xyz}"
 CAST="${CAST_PATH:-$HOME/.foundry/bin/cast}"
 WORKSPACE="${WORKSPACE:-$HOME/.openclaw/workspace}"
