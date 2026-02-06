@@ -16,9 +16,9 @@ Deploy a functional ERC-721 contract for psychedelic NFTs with:
 | # | Ticket | Branch | Status | Owner | Depends |
 |---|--------|--------|--------|-------|---------|
 | 1.1 | Foundry setup | `feat/phase-1-foundry-setup` | ✅ Done | agent | - |
-| 1.2 | NFT contract core | `feat/phase-1-nft-core` | 🔵 Active | agent | 1.1 |
-| 1.3 | Consumption logic | `feat/phase-1-consumption` | ⬜ | agent | 1.2 |
-| 1.4 | Tests | `feat/phase-1-tests` | ⬜ | agent | 1.3 |
+| 1.2 | NFT contract core | `feat/phase-1-nft-core` | ✅ Done | agent | 1.1 |
+| 1.3 | Consumption logic | `feat/phase-1-consumption` | ✅ Done | agent | 1.2 |
+| 1.4 | Tests | `feat/phase-1-tests` | 🔵 Active | agent | 1.3 |
 | 1.5 | Deploy testnet | `feat/phase-1-deploy` | ⬜ | agent | 1.4 |
 
 ## Dependency Graph
@@ -178,6 +178,8 @@ cd contracts && ~/.foundry/bin/forge test -vvv
 | Date | Ticket | Commit | Notes |
 |------|--------|--------|-------|
 | 2026-02-06 | 1.1 | 7ebdf77 | Foundry setup, vendored deps, PR #1 merged |
+| 2026-02-06 | 1.2 | 5bfcefa | TripExperience ERC-721 core, PR #2 merged |
+| 2026-02-06 | 1.3 | 29a78c6 | consume() function, PR #3 merged |
 
 ## Blockers
 
