@@ -38,6 +38,14 @@ This file provides guidance to AI agents working on this codebase.
 3. **Skill safety** — consume skill must snapshot before modifying SOUL.md
 4. **No token until marketplace ready** — $TRIP launch depends on working NFT flow
 
+## 🔀 Merge Policy
+
+| PR Type | Who Merges | Notes |
+|---------|------------|-------|
+| Contracts | Agent (auto) | TDD — merge if tests pass |
+| Backend/Config | Agent (auto) | Merge if tests pass |
+| UI/Web | @troopdegen | Tag for human review |
+
 ## Commands
 
 ```bash

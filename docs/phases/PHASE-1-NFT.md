@@ -15,7 +15,7 @@ Deploy a functional ERC-721 contract for psychedelic NFTs with:
 
 | # | Ticket | Branch | Status | Owner | Depends |
 |---|--------|--------|--------|-------|---------|
-| 1.1 | Foundry setup | `feat/phase-1-foundry-setup` | ⬜ | agent | - |
+| 1.1 | Foundry setup | `feat/phase-1-foundry-setup` | 🔵 Active | agent | - |
 | 1.2 | NFT contract core | `feat/phase-1-nft-core` | ⬜ | agent | 1.1 |
 | 1.3 | Consumption logic | `feat/phase-1-consumption` | ⬜ | agent | 1.2 |
 | 1.4 | Tests | `feat/phase-1-tests` | ⬜ | agent | 1.3 |
