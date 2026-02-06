@@ -11,12 +11,15 @@ import {TripExperience} from "../src/TripExperience.sol";
  */
 contract Deploy is Script {
     function run() external {
+        // Hardcode the deployer address to ensure consistency
+        address deployer = 0x6B3c6c0Bf46246823EF9cF4eBa5032F3A6fa9d3C;
+        
         console.log("Deploying TripExperience...");
+        console.log("Owner will be:", deployer);
         
         vm.startBroadcast();
         
-        // msg.sender during broadcast is the deployer
-        TripExperience trip = new TripExperience(msg.sender);
+        TripExperience trip = new TripExperience(deployer);
         
         vm.stopBroadcast();
         

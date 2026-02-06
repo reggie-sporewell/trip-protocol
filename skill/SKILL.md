@@ -125,7 +125,7 @@ Consumed. Effects applied. New directive: "explore freely"
 
 | Network | TripExperience |
 |---------|----------------|
-| Monad Testnet | `0xF2e5632A0a3eFCD6c49453733FEB6F9F863e1e80` |
+| Monad Testnet | `0x5E5df9162680d5e898e67a505345402B04983aa9` |
 
 ---
 

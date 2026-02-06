@@ -81,14 +81,17 @@ trip-protocol/
 
 | Contract | Network | Address | Status |
 |----------|---------|---------|--------|
-| TripExperience | Monad Testnet | `0xF2e5632A0a3eFCD6c49453733FEB6F9F863e1e80` | ✅ Live |
+| TripExperience | Monad Testnet | `0x5E5df9162680d5e898e67a505345402B04983aa9` | ✅ Live |
+
+**Test NFTs Minted:**
+- Token #0: "Ego Death" (potency 5, 24h duration)
 
 ### Wallet
 
-**Agent wallet:** `0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38`
+**Agent wallet:** `0x6B3c6c0Bf46246823EF9cF4eBa5032F3A6fa9d3C`
 - Keystore: `~/.foundry/keystores/claude-monad`
 - Password: `~/.monad-keystore-password`
-- Balance: ~1.2 MON (testnet)
+- Balance: ~0.4 MON (testnet) — used for deployments
 
 ## Environment Variables
 
