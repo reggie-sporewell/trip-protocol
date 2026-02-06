@@ -97,7 +97,7 @@ trip-protocol/
 | Field | Value |
 |-------|-------|
 | **Date** | 2026-02-06 |
-| **Commit** | `350c17e` |
+| **Commit** | `eca4096` |
 | **Branch** | `master` |
-| **What** | Initial repo setup |
-| **Status** | ✅ Clean |
+| **What** | Project setup with landing page |
+| **Status** | ✅ Deployed to trip-protocol.vercel.app |
