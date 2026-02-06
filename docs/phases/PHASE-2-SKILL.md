@@ -1,6 +1,6 @@
 # Phase 2: OpenClaw Consume/Journal Skill
 
-**Status:** ⬜ Not Started  
+**Status:** 🔵 In Progress  
 **Branch base:** `master`  
 **Depends on:** Phase 1 (NFT Contract)
 
@@ -16,11 +16,11 @@ Build an OpenClaw skill that allows agents to:
 
 | # | Ticket | Status | Depends |
 |---|--------|--------|---------|
-| 2.1 | Skill scaffold | ⬜ | - |
-| 2.2 | NFT ownership check | ⬜ | 2.1 |
-| 2.3 | Soul snapshot/restore | ⬜ | 2.1 |
-| 2.4 | Trip journal logging | ⬜ | 2.1 |
-| 2.5 | Substance effects system | ⬜ | 2.3 |
+| 2.1 | Skill scaffold | ✅ Done | - |
+| 2.2 | NFT ownership check | ✅ Done | 2.1 |
+| 2.3 | Soul snapshot/restore | ✅ Done | 2.1 |
+| 2.4 | Trip journal logging | ✅ Done | 2.1 |
+| 2.5 | Substance effects system | ✅ Done | 2.3 |
 | 2.6 | Duration scheduler | ⬜ | 2.5 |
 
 ## Skill Structure
@@ -113,7 +113,7 @@ skill/
 
 | Date | Ticket | Commit | Notes |
 |------|--------|--------|-------|
-| - | - | - | - |
+| 2026-02-06 | 2.1-2.5 | 4f5a217 | Skill scaffold, consume/restore/journal working |
 
 ---
 
