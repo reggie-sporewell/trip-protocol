@@ -13,7 +13,7 @@ This file provides guidance to AI agents working on this codebase.
 | Phase | Status | Branch | Description |
 |-------|--------|--------|-------------|
 | Phase 0: Setup | ✅ Done | master | Repo structure, landing page |
-| Phase 1: Contracts | ⬜ Planned | TBD | NFT contract, marketplace basics |
+| Phase 1: Contracts | 🔵 Active | see phase tracker | NFT contract (5 tickets) |
 | Phase 2: Skill | ⬜ Planned | TBD | OpenClaw consume/journal skill |
 | Phase 3: Integration | ⬜ Planned | TBD | Connect contracts + skill |
 | Phase 4: Token | ⬜ Planned | TBD | $TRIP on nad.fun |
@@ -25,10 +25,11 @@ This file provides guidance to AI agents working on this codebase.
 
 | Doc | Purpose |
 |-----|---------|
-| `docs/specs/nft.md` | NFT contract spec |
-| `docs/specs/marketplace.md` | Marketplace spec |
-| `docs/specs/skill.md` | OpenClaw skill spec |
-| `docs/dev/monad_rules.txt` | Monad/Foundry patterns |
+| `docs/EPIC-CONTRACTS.md` | Contracts epic — vision, architecture |
+| `docs/phases/PHASE-1-NFT.md` | Phase 1 tracker — tickets, status |
+| `docs/specs/nft.md` | NFT contract spec — interface, functions |
+| `docs/specs/marketplace.md` | Marketplace spec (TBD) |
+| `docs/specs/skill.md` | OpenClaw skill spec (TBD) |
 
 ## ⚠️ Architecture Rules
 
