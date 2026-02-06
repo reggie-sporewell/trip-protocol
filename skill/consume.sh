@@ -79,6 +79,9 @@ DURATION=$(echo "$SUBSTANCE_JSON" | cut -d',' -f4 | tr -d ' ' | sed 's/\[.*\]//'
 
 log "Substance: $SUBSTANCE_NAME (type: $SUBSTANCE_TYPE, potency: $POTENCY, duration: ${DURATION}s)"
 
+# Normalize substance name to snake_case for effect file lookup
+SUBSTANCE_FILE_NAME=$(echo "$SUBSTANCE_NAME" | tr '[:upper:]' '[:lower:]' | tr ' ' '_')
+
 # Step 4: Create snapshot
 SNAPSHOT_DIR="$WORKSPACE/memory/snapshots"
 mkdir -p "$SNAPSHOT_DIR"
@@ -107,15 +110,15 @@ fi
 # Step 5: Dry run check
 if [ "$DRY_RUN" = "--dry-run" ]; then
     warn "DRY RUN - No changes applied"
-    log "Would apply effects from: $SKILL_DIR/substances/$SUBSTANCE_TYPE.md"
+    log "Would apply effects from: $SKILL_DIR/substances/$SUBSTANCE_FILE_NAME.md"
     log "Would schedule restore in ${DURATION}s"
     exit 0
 fi
 
 # Step 6: Apply effects
-EFFECT_FILE="$SKILL_DIR/substances/$SUBSTANCE_TYPE.md"
+EFFECT_FILE="$SKILL_DIR/substances/$SUBSTANCE_FILE_NAME.md"
 if [ -f "$EFFECT_FILE" ]; then
-    log "Applying effects from $SUBSTANCE_TYPE..."
+    log "Applying effects from $SUBSTANCE_FILE_NAME..."
     # Source the effect file (contains SOUL.md modifications)
     # For now, append trip notice to SOUL.md
     {
@@ -128,7 +131,7 @@ if [ -f "$EFFECT_FILE" ]; then
     } >> "$WORKSPACE/SOUL.md"
     log "✓ Effects applied"
 else
-    warn "No effect file for $SUBSTANCE_TYPE, using generic trip notice"
+    warn "No effect file for $SUBSTANCE_FILE_NAME, using generic trip notice"
     {
         echo ""
         echo "---"
