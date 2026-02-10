@@ -58,7 +58,20 @@ Check current trip status.
 trip-status
 ```
 
-Shows: active trip, time remaining, current effects.
+Shows: active trip, time remaining, scheduled restore time.
+
+### check-restores
+
+Check and execute any due restore jobs. Run periodically via cron or heartbeat.
+
+```
+./check-restores.sh
+```
+
+This is the auto-restore daemon. It:
+1. Scans `memory/scheduled/` for pending restores
+2. Checks if any are past their trigger time
+3. Executes restore and archives completed jobs
 
 ## Configuration
 

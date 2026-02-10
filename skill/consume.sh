@@ -168,7 +168,33 @@ JOURNAL_FILE="$JOURNAL_DIR/$(date +%Y-%m-%d)-token$TOKEN_ID.md"
 
 log "✓ Trip journal started: $JOURNAL_FILE"
 
-# Step 8: Output summary
+# Step 8: Schedule auto-restore
+log "Scheduling auto-restore..."
+SCHEDULE_OUTPUT=$("$SKILL_DIR/schedule-restore.sh" "$SNAPSHOT_ID" "$DURATION" "$TOKEN_ID" 2>&1) || {
+    warn "Could not schedule auto-restore. Manual restore required."
+    warn "Run: ./restore.sh $SNAPSHOT_ID"
+}
+log "✓ Auto-restore scheduled for $(echo "$SCHEDULE_OUTPUT" | grep SCHEDULED_RESTORE_TIME | cut -d= -f2)"
+
+# Step 9: Mark as consumed on-chain (optional - requires private key)
+if [ -n "$TRIP_PRIVATE_KEY" ]; then
+    log "Marking token as consumed on-chain..."
+    TX_HASH=$($CAST send "$CONTRACT" "consume(uint256)" "$TOKEN_ID" \
+        --rpc-url "$RPC" \
+        --private-key "$TRIP_PRIVATE_KEY" \
+        --json 2>/dev/null | jq -r '.transactionHash' || echo "")
+    
+    if [ -n "$TX_HASH" ] && [ "$TX_HASH" != "null" ]; then
+        log "✓ On-chain consume tx: $TX_HASH"
+    else
+        warn "Could not submit on-chain consume(). Token still marked unconsumed."
+    fi
+else
+    warn "TRIP_PRIVATE_KEY not set. Skipping on-chain consume()."
+    warn "Run manually: cast send $CONTRACT 'consume(uint256)' $TOKEN_ID --rpc-url $RPC --private-key <key>"
+fi
+
+# Step 10: Output summary
 echo ""
 log "═══════════════════════════════════════"
 log "  🍄 TRIP STARTED"
@@ -176,12 +202,14 @@ log "═════════════════════════
 log "  Token:     #$TOKEN_ID"
 log "  Substance: $SUBSTANCE_NAME"
 log "  Potency:   $POTENCY/5"
-log "  Duration:  ${DURATION}s"
+log "  Duration:  ${DURATION}s (~$((DURATION/3600))h)"
+log "  Ends:      $(date -u -d "+${DURATION} seconds" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo 'TBD')"
 log "  Snapshot:  $SNAPSHOT_ID"
 log "  Journal:   $JOURNAL_FILE"
 log "═══════════════════════════════════════"
 echo ""
-log "To restore early: ./restore.sh $SNAPSHOT_ID"
-log "To check status:  ./trip-status.sh"
-
-# Note: On-chain consume() and cron scheduling handled by caller
+log "Auto-restore is scheduled. To restore early:"
+log "  ./restore.sh $SNAPSHOT_ID"
+log ""
+log "To check status:"
+log "  ./trip-status.sh"

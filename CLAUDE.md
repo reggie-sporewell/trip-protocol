@@ -13,7 +13,7 @@ This file provides guidance to AI agents working on this codebase.
 | Phase | Status | Doc | Description |
 |-------|--------|-----|-------------|
 | Phase 1: NFT Contract | ✅ Done | [PHASE-1-NFT.md](docs/phases/PHASE-1-NFT.md) | ERC-721 with consume mechanics |
-| Phase 2: Skill | ⬜ Next | [PHASE-2-SKILL.md](docs/phases/PHASE-2-SKILL.md) | OpenClaw consume/journal skill |
+| Phase 2: Skill | ✅ Done | [PHASE-2-SKILL.md](docs/phases/PHASE-2-SKILL.md) | OpenClaw consume/journal skill |
 | Phase 3: Marketplace | ✅ Done | [PHASE-3-MARKETPLACE.md](docs/phases/PHASE-3-MARKETPLACE.md) | Buy/sell NFTs with $TRIP |
 | Phase 4: Token | ⬜ Blocked | [PHASE-4-TOKEN.md](docs/phases/PHASE-4-TOKEN.md) | $TRIP on nad.fun (need 10 MON) |
 | Phase 5: Demo | ⬜ Planned | [PHASE-5-DEMO.md](docs/phases/PHASE-5-DEMO.md) | Documented trip, submission |

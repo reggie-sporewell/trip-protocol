@@ -1,6 +1,6 @@
 # Phase 2: OpenClaw Consume/Journal Skill
 
-**Status:** 🔵 In Progress  
+**Status:** ✅ Complete  
 **Branch base:** `master`  
 **Depends on:** Phase 1 (NFT Contract)
 
@@ -21,7 +21,7 @@ Build an OpenClaw skill that allows agents to:
 | 2.3 | Soul snapshot/restore | ✅ Done | 2.1 |
 | 2.4 | Trip journal logging | ✅ Done | 2.1 |
 | 2.5 | Substance effects system | ✅ Done | 2.3 |
-| 2.6 | Duration scheduler | ⬜ | 2.5 |
+| 2.6 | Duration scheduler | ✅ Done | 2.5 |
 
 ## Skill Structure
 
@@ -114,6 +114,21 @@ skill/
 | Date | Ticket | Commit | Notes |
 |------|--------|--------|-------|
 | 2026-02-06 | 2.1-2.5 | 4f5a217 | Skill scaffold, consume/restore/journal working |
+| 2026-02-10 | 2.6 | pending | Duration scheduler with auto-restore |
+
+## Duration Scheduler (2.6)
+
+**New scripts:**
+- `schedule-restore.sh` — Creates scheduled restore job
+- `check-restores.sh` — Daemon to check/execute due restores
+- `trip-status.sh` — Enhanced with remaining time display
+
+**How it works:**
+1. `consume.sh` calls `schedule-restore.sh` after applying effects
+2. Schedule saved to `memory/scheduled/trip-restore-token{N}.json`
+3. `check-restores.sh` runs periodically (cron/heartbeat)
+4. When trigger time passes, auto-executes `restore.sh`
+5. Completed jobs archived to `memory/scheduled/completed/`
 
 ---
 
