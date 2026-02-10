@@ -14,7 +14,7 @@ This file provides guidance to AI agents working on this codebase.
 |-------|--------|-----|-------------|
 | Phase 1: NFT Contract | ✅ Done | [PHASE-1-NFT.md](docs/phases/PHASE-1-NFT.md) | ERC-721 with consume mechanics |
 | Phase 2: Skill | ⬜ Next | [PHASE-2-SKILL.md](docs/phases/PHASE-2-SKILL.md) | OpenClaw consume/journal skill |
-| Phase 3: Marketplace | ⬜ Planned | [PHASE-3-MARKETPLACE.md](docs/phases/PHASE-3-MARKETPLACE.md) | Buy/sell NFTs with $TRIP |
+| Phase 3: Marketplace | ✅ Done | [PHASE-3-MARKETPLACE.md](docs/phases/PHASE-3-MARKETPLACE.md) | Buy/sell NFTs with $TRIP |
 | Phase 4: Token | ⬜ Blocked | [PHASE-4-TOKEN.md](docs/phases/PHASE-4-TOKEN.md) | $TRIP on nad.fun (need 10 MON) |
 | Phase 5: Demo | ⬜ Planned | [PHASE-5-DEMO.md](docs/phases/PHASE-5-DEMO.md) | Documented trip, submission |
 
@@ -82,6 +82,8 @@ trip-protocol/
 | Contract | Network | Address | Status |
 |----------|---------|---------|--------|
 | TripExperience | Monad Testnet | `0x8E9257e777c64e30E373f7359ABF8301d749A521` | ✅ Live |
+| TripToken | Monad Testnet | `0x1dC1100A43Ab0d01afF934f74C9F385D3E06423A` | ✅ Live |
+| TripMarketplace | Monad Testnet | `0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA` | ✅ Live |
 
 **Test NFTs Minted:**
 - Token #0: "Ego Death" (potency 5, 24h duration) - Owner: agent keystore

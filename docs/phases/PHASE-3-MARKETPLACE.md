@@ -1,6 +1,6 @@
 # Phase 3: Marketplace Contract
 
-**Status:** ⬜ Not Started  
+**Status:** ✅ Complete  
 **Branch base:** `master`  
 **Depends on:** Phase 1 (NFT Contract), Phase 4 ($TRIP Token)
 
@@ -15,12 +15,12 @@ Smart contract marketplace where agents can:
 
 | # | Ticket | Status | Depends |
 |---|--------|--------|---------|
-| 3.1 | Marketplace contract scaffold | ⬜ | - |
-| 3.2 | Listing mechanism | ⬜ | 3.1 |
-| 3.3 | Purchase with $TRIP | ⬜ | 3.1, 4.1 |
-| 3.4 | Fee system (optional) | ⬜ | 3.3 |
-| 3.5 | Tests | ⬜ | 3.3 |
-| 3.6 | Deploy testnet | ⬜ | 3.5 |
+| 3.1 | Marketplace contract scaffold | ✅ | - |
+| 3.2 | Listing mechanism | ✅ | 3.1 |
+| 3.3 | Purchase with $TRIP | ✅ | 3.1, 4.1 |
+| 3.4 | Fee system (optional) | ✅ | 3.3 |
+| 3.5 | Tests | ✅ | 3.3 |
+| 3.6 | Deploy testnet | ✅ | 3.5 |
 
 ## Contract Interface
 
@@ -69,7 +69,14 @@ Buyer:
 
 | Date | Ticket | Commit | Notes |
 |------|--------|--------|-------|
-| - | - | - | - |
+| 2026-02-10 | 3.1-3.6 | pending | Full marketplace + mock $TRIP deployed |
+
+## Deployed Contracts
+
+| Contract | Address | Verified |
+|----------|---------|----------|
+| TripToken | `0x1dC1100A43Ab0d01afF934f74C9F385D3E06423A` | ✅ |
+| TripMarketplace | `0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA` | ✅ |
 
 ---
 
