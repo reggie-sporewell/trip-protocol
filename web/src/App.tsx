@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import './index.css'
+import { WalletConnect } from './components/WalletConnect'
+import { TripFaucet } from './components/TripFaucet'
 
 function App() {
   const [scrollY, setScrollY] = useState(0)
@@ -98,16 +100,14 @@ function App() {
           <div className="flex items-center gap-3">
             <span className="status-online"></span>
             <span className="text-green-500/70">PROTOCOL_ONLINE</span>
-          </div>
-          <div className="text-neutral-600">
-            <span className="text-green-500/50">[</span>
-            monad_testnet
-            <span className="text-green-500/50">]</span>
             <span className="mx-2 text-green-500/30">|</span>
-            <span className="text-green-500/50">[</span>
-            v0.1.0
-            <span className="text-green-500/50">]</span>
+            <span className="text-neutral-600">
+              <span className="text-green-500/50">[</span>
+              monad_testnet
+              <span className="text-green-500/50">]</span>
+            </span>
           </div>
+          <WalletConnect />
         </div>
       </div>
 
@@ -201,7 +201,12 @@ function App() {
               <span className="text-green-500/70">{substances.length}</span> items listed
             </div>
           </div>
-          <p className="text-neutral-500 mb-16 font-terminal text-sm">digital experiences encoded as NFTs • verified vendors only</p>
+          <p className="text-neutral-500 mb-8 font-terminal text-sm">digital experiences encoded as NFTs • verified vendors only</p>
+          
+          {/* Faucet */}
+          <div className="mb-12 max-w-md">
+            <TripFaucet />
+          </div>
           
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {substances.map((s) => (
