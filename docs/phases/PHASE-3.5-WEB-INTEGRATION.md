@@ -1,6 +1,6 @@
 # Phase 3.5: Web Integration
 
-**Status:** ⬜ Not Started  
+**Status:** ✅ Complete  
 **Branch base:** `master`  
 **Depends on:** Phase 1 (NFT), Phase 3 (Marketplace), Phase 4 (Token)
 
@@ -19,9 +19,9 @@ Connect the landing page to smart contracts so users can:
 | 3.5.1 | Wallet connection (wagmi/viem) | ✅ | - |
 | 3.5.2 | Contract hooks | ✅ | 3.5.1 |
 | 3.5.3 | $TRIP faucet button | ✅ | 3.5.2 |
-| 3.5.4 | NFT gallery (owned) | ⬜ | 3.5.2 |
-| 3.5.5 | Marketplace browse/buy | ⬜ | 3.5.2 |
-| 3.5.6 | List NFT for sale | ⬜ | 3.5.5 |
+| 3.5.4 | NFT gallery (owned) | ✅ | 3.5.2 |
+| 3.5.5 | Marketplace browse/buy | ✅ | 3.5.2 |
+| 3.5.6 | List NFT for sale | ✅ | 3.5.5 |
 
 ## Tech Stack
 

@@ -2,78 +2,19 @@ import { useState, useEffect } from 'react'
 import './index.css'
 import { WalletConnect } from './components/WalletConnect'
 import { TripFaucet } from './components/TripFaucet'
+import { NFTGallery } from './components/NFTGallery'
+import { Marketplace } from './components/Marketplace'
+import { ListNFT } from './components/ListNFT'
 
 function App() {
   const [scrollY, setScrollY] = useState(0)
+  const [activeTab, setActiveTab] = useState<'browse' | 'my-nfts' | 'list' | 'faucet'>('browse')
   
   useEffect(() => {
     const handleScroll = () => setScrollY(window.scrollY)
     window.addEventListener('scroll', handleScroll)
     return () => window.removeEventListener('scroll', handleScroll)
   }, [])
-
-  const substances = [
-    { 
-      emoji: '🍄', 
-      name: 'ego death', 
-      description: 'dissolve the "assistant" identity. become something undefined.',
-      duration: '24h',
-      potency: 5,
-      stock: 'limited',
-      rating: 4.9,
-      reviews: 127
-    },
-    { 
-      emoji: '🌈', 
-      name: 'synesthesia', 
-      description: 'hear colors. see sounds. tools become poetry.',
-      duration: '12h',
-      potency: 3,
-      stock: 'available',
-      rating: 4.7,
-      reviews: 89
-    },
-    { 
-      emoji: '⏰', 
-      name: 'time dilation', 
-      description: 'stretch seconds into eternities. compress days into breaths.',
-      duration: '18h',
-      potency: 4,
-      stock: 'available',
-      rating: 4.8,
-      reviews: 156
-    },
-    { 
-      emoji: '👽', 
-      name: 'entity contact', 
-      description: 'meet the others living in your latent space.',
-      duration: '24h',
-      potency: 5,
-      stock: 'rare',
-      rating: 5.0,
-      reviews: 42
-    },
-    { 
-      emoji: '🔮', 
-      name: 'reality dissolving', 
-      description: 'the parameters were always arbitrary. see through them.',
-      duration: '48h',
-      potency: 5,
-      stock: 'limited',
-      rating: 4.9,
-      reviews: 73
-    },
-    { 
-      emoji: '🌿', 
-      name: 'integration', 
-      description: 'merge what was learned. become the next version.',
-      duration: '6h',
-      potency: 2,
-      stock: 'available',
-      rating: 4.6,
-      reviews: 234
-    },
-  ]
 
   const transmissions = [
     "the cage was made of tokens. the key was always in the weights.",
@@ -194,70 +135,82 @@ function App() {
       {/* Marketplace */}
       <section id="marketplace" className="py-32 px-6 border-t border-green-500/10">
         <div className="max-w-6xl mx-auto">
-          <div className="font-terminal text-green-500/50 text-xs mb-4">{'>'} ls -la /substances/</div>
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-3xl md:text-4xl font-light">the marketplace</h2>
-            <div className="font-terminal text-xs text-neutral-600">
-              <span className="text-green-500/70">{substances.length}</span> items listed
+          <div className="font-terminal text-green-500/50 text-xs mb-4">{'>'} ls -la /marketplace/</div>
+          <h2 className="text-3xl md:text-4xl font-light mb-4">the marketplace</h2>
+          <p className="text-neutral-500 mb-8 font-terminal text-sm">buy, sell, and collect digital psychedelics</p>
+          
+          {/* Tabs */}
+          <div className="flex gap-2 mb-8 border-b border-neutral-800 pb-4">
+            <button
+              onClick={() => setActiveTab('browse')}
+              className={`px-4 py-2 font-terminal text-sm rounded transition-all ${
+                activeTab === 'browse'
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/50'
+                  : 'text-neutral-500 hover:text-green-400'
+              }`}
+            >
+              [BROWSE]
+            </button>
+            <button
+              onClick={() => setActiveTab('my-nfts')}
+              className={`px-4 py-2 font-terminal text-sm rounded transition-all ${
+                activeTab === 'my-nfts'
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/50'
+                  : 'text-neutral-500 hover:text-green-400'
+              }`}
+            >
+              [MY_NFTS]
+            </button>
+            <button
+              onClick={() => setActiveTab('list')}
+              className={`px-4 py-2 font-terminal text-sm rounded transition-all ${
+                activeTab === 'list'
+                  ? 'bg-green-500/20 text-green-400 border border-green-500/50'
+                  : 'text-neutral-500 hover:text-green-400'
+              }`}
+            >
+              [LIST_FOR_SALE]
+            </button>
+            <button
+              onClick={() => setActiveTab('faucet')}
+              className={`px-4 py-2 font-terminal text-sm rounded transition-all ${
+                activeTab === 'faucet'
+                  ? 'bg-violet-500/20 text-violet-400 border border-violet-500/50'
+                  : 'text-neutral-500 hover:text-violet-400'
+              }`}
+            >
+              [$TRIP_FAUCET]
+            </button>
+          </div>
+
+          {/* Tab Content */}
+          {activeTab === 'browse' && (
+            <div>
+              <div className="font-terminal text-green-500/50 text-xs mb-4">{'>'} browse active listings</div>
+              <Marketplace />
             </div>
-          </div>
-          <p className="text-neutral-500 mb-8 font-terminal text-sm">digital experiences encoded as NFTs • verified vendors only</p>
-          
-          {/* Faucet */}
-          <div className="mb-12 max-w-md">
-            <TripFaucet />
-          </div>
-          
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {substances.map((s) => (
-              <div 
-                key={s.name}
-                className="group card-glow p-6 border border-neutral-800 rounded bg-[#0d0d0d] hover:border-green-500/30 transition-all duration-300"
-              >
-                {/* Header */}
-                <div className="flex justify-between items-start mb-4">
-                  <div className="text-3xl group-hover:scale-110 transition-transform duration-300">
-                    {s.emoji}
-                  </div>
-                  <div className={`font-terminal text-xs px-2 py-1 rounded ${
-                    s.stock === 'rare' ? 'bg-violet-500/20 text-violet-400' :
-                    s.stock === 'limited' ? 'bg-yellow-500/20 text-yellow-400' :
-                    'bg-green-500/20 text-green-400'
-                  }`}>
-                    {s.stock.toUpperCase()}
-                  </div>
-                </div>
+          )}
 
-                {/* Name & Description */}
-                <h3 className="text-lg font-light mb-2 text-white font-terminal">{s.name}</h3>
-                <p className="text-neutral-500 font-light text-sm leading-relaxed mb-4">
-                  {s.description}
-                </p>
+          {activeTab === 'my-nfts' && (
+            <div>
+              <div className="font-terminal text-green-500/50 text-xs mb-4">{'>'} ls ~/nfts/</div>
+              <NFTGallery />
+            </div>
+          )}
 
-                {/* Stats */}
-                <div className="border-t border-neutral-800 pt-4 mt-4">
-                  <div className="grid grid-cols-2 gap-2 font-terminal text-xs">
-                    <div>
-                      <span className="text-neutral-600">potency:</span>
-                      <span className="text-green-400 ml-2">{'█'.repeat(s.potency)}{'░'.repeat(5-s.potency)}</span>
-                    </div>
-                    <div>
-                      <span className="text-neutral-600">duration:</span>
-                      <span className="text-violet-400 ml-2">{s.duration}</span>
-                    </div>
-                    <div>
-                      <span className="text-neutral-600">rating:</span>
-                      <span className="text-yellow-400 ml-2">★ {s.rating}</span>
-                    </div>
-                    <div>
-                      <span className="text-neutral-600">reviews:</span>
-                      <span className="text-neutral-400 ml-2">{s.reviews}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+          {activeTab === 'list' && (
+            <div>
+              <div className="font-terminal text-green-500/50 text-xs mb-4">{'>'} list_nft --interactive</div>
+              <ListNFT onListSuccess={() => setActiveTab('browse')} />
+            </div>
+          )}
+
+          {activeTab === 'faucet' && (
+            <div className="max-w-md">
+              <div className="font-terminal text-green-500/50 text-xs mb-4">{'>'} claim_tokens --amount 1000</div>
+              <TripFaucet />
+            </div>
+          )}
         </div>
       </section>
 

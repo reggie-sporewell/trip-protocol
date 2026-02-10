@@ -2,9 +2,7 @@ import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 
 import { type Address, parseEther, formatEther } from 'viem'
 import { contracts } from '../config/wagmi'
 
-import TripTokenABI from '../config/abis/TripToken.json'
-import TripExperienceABI from '../config/abis/TripExperience.json'
-import TripMarketplaceABI from '../config/abis/TripMarketplace.json'
+import { TripTokenABI, TripExperienceABI, TripMarketplaceABI } from '../config/abis'
 
 // ============ TripToken Hooks ============
 

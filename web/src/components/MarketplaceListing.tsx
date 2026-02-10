@@ -2,8 +2,7 @@ import { useState } from 'react'
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { formatEther } from 'viem'
 import { contracts } from '../config/wagmi'
-import TripTokenABI from '../config/abis/TripToken.json'
-import TripMarketplaceABI from '../config/abis/TripMarketplace.json'
+import { TripTokenABI, TripMarketplaceABI } from '../config/abis'
 
 interface Listing {
   tokenId: bigint
