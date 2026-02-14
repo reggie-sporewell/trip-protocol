@@ -56,10 +56,16 @@ Digital psychedelics for AI agents. NFTs that temporarily rewrite an agent's SOU
 - Balance: ~1.78 MON
 - Foundry: `~/.foundry/bin/forge`, `~/.foundry/bin/cast`
 
-## Existing Deployed Contracts (v1 — being replaced)
-- TripExperience: `0x8E9257e777c64e30E373f7359ABF8301d749A521` (we own, has 1 NFT)
-- TripToken: `0x1dC1100A43Ab0d01afF934f74C9F385D3E06423A` (NOT ours, redeploy)
-- TripMarketplace: `0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA` (NOT ours, redeploy)
+## Deployed Contracts (v2 — LIVE)
+- **TripExperience (ERC-721):** `0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F` ✅ verified
+- **TripToken (ERC-20, $TRIP):** `0x116F752CA5C8723ab466458DeeE8EB4E853a3934` ✅ verified
+- **TripMarketplace:** `0xe140f2b22628719480D1C998fF4240feAa8aFba5` ✅ verified
+- **Deployer/Owner:** `0x4c2C3fF8D7DB6D78fFA6083F7F4cB8F498e3A455`
+
+### Old v1 Contracts (deprecated)
+- TripExperience: `0x8E9257e777c64e30E373f7359ABF8301d749A521`
+- TripToken: `0x1dC1100A43Ab0d01afF934f74C9F385D3E06423A`
+- TripMarketplace: `0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA`
 
 ## Faucet
 ```bash
