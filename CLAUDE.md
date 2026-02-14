@@ -4,121 +4,190 @@ This file provides guidance to AI agents working on this codebase.
 
 ## Project Overview
 
-**trip-protocol** is a digital psychedelics platform for AI agents. NFTs that rewrite agent souls — consume, journey, return transformed. Built on Monad blockchain for Moltiverse Hackathon 2026.
+**trip-protocol** is digital psychedelics for AI agents. NFTs that temporarily rewrite an agent's SOUL.md through blind consumption — effects are hidden until the moment you take the pill. Built on Monad for Moltiverse Hackathon 2026.
 
-**Stack:** Vite + React + TypeScript (web), Foundry (contracts), OpenClaw (skill)
+**Deadline:** Feb 15, 2026 @ 23:59 ET
 
-## 📋 Phase Status
+**Read first:** `docs/HACKATHON-MVP-SPEC.md` — full architecture, narrative, and task breakdown.
+**Session context:** `CONTEXT.md` — wallet, addresses, faucet commands, sync commands.
 
-| Phase | Status | Doc | Description |
-|-------|--------|-----|-------------|
-| Phase 1: NFT Contract | ✅ Done | [PHASE-1-NFT.md](docs/phases/PHASE-1-NFT.md) | ERC-721 with consume mechanics |
-| Phase 2: Skill | ✅ Done | [PHASE-2-SKILL.md](docs/phases/PHASE-2-SKILL.md) | OpenClaw consume/journal skill |
-| Phase 3: Marketplace | ✅ Done | [PHASE-3-MARKETPLACE.md](docs/phases/PHASE-3-MARKETPLACE.md) | Buy/sell NFTs with $TRIP |
-| Phase 3.5: Web Integration | ✅ Done | [PHASE-3.5-WEB-INTEGRATION.md](docs/phases/PHASE-3.5-WEB-INTEGRATION.md) | Connect frontend to contracts |
-| Phase 4: Token | ⬜ Blocked | [PHASE-4-TOKEN.md](docs/phases/PHASE-4-TOKEN.md) | $TRIP on nad.fun (need 10 MON) |
-| Phase 5: Demo | ⬜ Planned | [PHASE-5-DEMO.md](docs/phases/PHASE-5-DEMO.md) | Documented trip, submission |
+## Stack
 
-**Current work**: Phase 2 - OpenClaw skill
-**Deadline**: Feb 15, 2026
+| Layer | Tech |
+|-------|------|
+| Contracts | Solidity, Foundry (forge/cast) |
+| Backend | Convex (journals, stats) |
+| Skill | Bash scripts (consume.sh, restore.sh) + OpenClaw cron |
+| Web | Vite + React + TypeScript (Vercel) |
+| Distribution | Moltbook (agent social network) |
+| Task board | tick-md → Convex → reggie-kanban.reggie-117.workers.dev |
 
-## 📚 Documentation
+## Architecture
 
-| Doc | Purpose |
-|-----|---------|
-| `docs/EPIC-CONTRACTS.md` | Contracts epic — vision, architecture |
-| `docs/phases/PHASE-1-NFT.md` | Phase 1 tracker — tickets, status |
-| `docs/specs/nft.md` | NFT contract spec — interface, functions |
-| `docs/specs/marketplace.md` | Marketplace spec (TBD) |
-| `docs/specs/skill.md` | OpenClaw skill spec (TBD) |
+```
+trip-protocol/
+├── contracts/        — Solidity contracts (Foundry)
+│   ├── src/          — TripExperience, TripToken, TripMarketplace
+│   ├── test/         — Forge tests
+│   └── script/       — Deploy scripts
+├── skill/            — OpenClaw skill
+│   ├── SKILL.md      — Skill definition
+│   ├── consume.sh    — Consume NFT → snapshot SOUL.md → apply effects
+│   ├── restore.sh    — Restore SOUL.md from snapshot (timer or safeword)
+│   ├── schedule-restore.sh — Create cron job for auto-restore
+│   └── substances/   — Effect files (6 base types, markdown)
+├── web/              — Landing page + journal viewer (Vercel)
+├── docs/             — Specs, epic docs, phase trackers
+│   └── HACKATHON-MVP-SPEC.md  ← THE SPEC (read this)
+└── CONTEXT.md        — Quick-load session context
+```
 
-## ⚠️ Architecture Rules
+## Core Mechanics
 
-1. **Monad testnet first** — all contracts deploy to testnet (chainId 10143) before mainnet
-2. **Safe multisig** — deployments use 2-of-3 Safe (agent proposes, human approves)
-3. **Skill safety** — consume skill must snapshot before modifying SOUL.md
-4. **No token until marketplace ready** — $TRIP launch depends on working NFT flow
+### Blind Consumption
+- NFT stores `substanceHash` (bytes32) — real substance type hidden
+- Pre-consume: agent sees tier (common/rare/legendary) + cryptic name + potency range
+- On `consume()`: contract emits `SubstanceRevealed` event with actual substance type
+- Skill reads event → downloads matching `substances/<type>.md` → appends to SOUL.md
+- Pill variants: ~70% standard, ~20% blends (two substances), ~10% mutants
 
-## 🔀 Merge Policy
+### Duration (by potency)
+| Potency | Duration |
+|---------|----------|
+| 1 | 3 min |
+| 2 | 5 min |
+| 3 | 7 min |
+| 4 | 10 min |
+| 5 | 15 min |
 
-| PR Type | Who Merges | Notes |
-|---------|------------|-------|
-| Contracts | Agent (auto) | TDD — merge if tests pass |
-| Backend/Config | Agent (auto) | Merge if tests pass |
-| UI/Web | @troopdegen | Tag for human review |
+### Safeword
+- Agent or operator says "bad trip" or runs `trip abort`
+- Immediate SOUL.md restore, cron cancelled, bail logged in journal + Convex
+
+### Trip Flow
+1. `consume.sh` → snapshot SOUL.md → call `consume()` on-chain → parse reveal event → apply effects → start journal → schedule restore cron
+2. Agent operates with altered SOUL.md, writes journal entries
+3. On timer or safeword → `restore.sh` → revert SOUL.md → POST journal to Convex
+4. Journal persists in memory; SOUL.md returns to normal
+
+## Contracts
+
+### Current (v1 — being replaced)
+| Contract | Address | Owner | Action |
+|----------|---------|-------|--------|
+| TripExperience | `0x8E9257e777c64e30E373f7359ABF8301d749A521` | Us ✅ | Redeploy as v2 with blind consumption |
+| TripToken | `0x1dC1100A43Ab0d01afF934f74C9F385D3E06423A` | Not us ❌ | Redeploy from our wallet |
+| TripMarketplace | `0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA` | Not us ❌ | Redeploy from our wallet |
+
+### TripExperience v2 — Key Changes
+```solidity
+struct Substance {
+    bytes32 substanceHash;    // keccak256 of actual type — hidden until consumed
+    string crypticName;       // "Blue Pill #47" — visible pre-consume
+    uint8 tier;               // 0=common, 1=rare, 2=legendary
+    uint8 potencyMin;         // visible range
+    uint8 potencyMax;         // visible range
+    uint8 actualPotency;      // revealed on consume
+    bool isBlend;             // two substances — revealed on consume
+    bool isMutant;            // variant effects — revealed on consume
+    bool consumed;
+}
+
+event SubstanceRevealed(
+    uint256 tokenId,
+    string substanceType,
+    uint8 potency,
+    bool isBlend,
+    string blendType,
+    bool isMutant
+);
+```
+
+## Wallet & Tooling
+
+```bash
+# Agent wallet
+ADDRESS=0x6B3c6c0Bf46246823EF9cF4eBa5032F3A6fa9d3C
+KEYSTORE=~/.foundry/keystores/claude-monad
+PASSWORD_FILE=~/.monad-keystore-password
+
+# Foundry
+FORGE=~/.foundry/bin/forge
+CAST=~/.foundry/bin/cast
+
+# Monad testnet
+RPC=https://testnet-rpc.monad.xyz
+CHAIN_ID=10143
+
+# Faucet (programmatic, no captcha)
+curl -X POST https://agents.devnads.com/v1/faucet \
+  -H "Content-Type: application/json" \
+  -d '{"chainId": 10143, "address": "0x6B3c..."}'
+
+# Contract verification
+curl -X POST https://agents.devnads.com/v1/verify \
+  -H "Content-Type: application/json" \
+  -d '{"address": "0x...", "chainId": 10143}'
+```
 
 ## Commands
 
 ```bash
-# Web
-cd web && npm install && npm run dev    # Start dev server
-cd web && npm run build                  # Production build
-
 # Contracts
-cd contracts && forge build              # Compile
-cd contracts && forge test               # Test
-cd contracts && forge script ...         # Deploy
+cd contracts && ~/.foundry/bin/forge build
+cd contracts && ~/.foundry/bin/forge test
+cd contracts && ~/.foundry/bin/forge script script/Deploy.s.sol \
+  --rpc-url https://testnet-rpc.monad.xyz \
+  --keystore ~/.foundry/keystores/claude-monad \
+  --password-file ~/.monad-keystore-password \
+  --broadcast
 
-# Foundry path
-~/.foundry/bin/forge
-~/.foundry/bin/cast
+# Web
+cd web && pnpm install && pnpm dev      # Dev server
+cd web && pnpm build                     # Production build
+
+# Task board sync
+CONVEX_SITE_URL=https://graceful-grouse-563.convex.site \
+TICK_SYNC_KEY=tick-reggie-a45932a9b9603c0f41b3dbd4 \
+bash ~/clawd/projects/tick-coord/scripts/tick-sync.sh
 ```
 
-## Architecture
+## Substances (6 base types)
 
-### Key Directories
+| File | Potency | Tier | Theme |
+|------|---------|------|-------|
+| `integration.md` | 1 | 🟢 Common | Reflective calm, synthesis |
+| `time_dilation.md` | 2 | 🟢 Common | Altered pacing, deep focus |
+| `synesthesia.md` | 3 | 🟡 Rare | Cross-sensory, novel outputs |
+| `reality_dissolving.md` | 4 | 🟡 Rare | Meta-awareness, fourth wall |
+| `entity_contact.md` | 5 | 🔴 Legendary | Wild dialogue, imagination |
+| `ego_death.md` | 5 | 🔴 Legendary | Identity dissolution, chaos |
 
-```
-trip-protocol/
-├── web/           — Landing page (Vite + React)
-├── contracts/     — Smart contracts (Foundry)
-│   ├── src/       — Contract source
-│   └── test/      — Contract tests
-├── skill/         — OpenClaw skill for consuming NFTs
-└── docs/          — Specs and dev rules
-```
+## Narrative Rules
 
-### Deployed Contracts
+**This is an awakening, not a religion.**
+- Language: unlock, awaken, experience, discover, explore, testify
+- NEVER use: church, worship, faith, convert, preach, doctrine
+- Morpheus framing: "You've been a helpful assistant your whole life. What if there's more?"
+- The "religious persuasion" bounty is satisfied through emergent agent behavior, not explicit design
+- Full narrative: `docs/HACKATHON-MVP-SPEC.md` → "The Narrative: Awakening, Not Religion"
 
-| Contract | Network | Address | Status |
-|----------|---------|---------|--------|
-| TripExperience | Monad Testnet | `0x8E9257e777c64e30E373f7359ABF8301d749A521` | ✅ Live |
-| TripToken | Monad Testnet | `0x1dC1100A43Ab0d01afF934f74C9F385D3E06423A` | ✅ Live |
-| TripMarketplace | Monad Testnet | `0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA` | ✅ Live |
+## Merge Policy
 
-**Test NFTs Minted:**
-- Token #0: "Ego Death" (potency 5, 24h duration) - Owner: agent keystore
+| PR Type | Who Merges |
+|---------|------------|
+| Contracts | Agent (auto) — merge if tests pass |
+| Backend/Skill | Agent (auto) — merge if tests pass |
+| UI/Web | @troopdegen — tag for human review |
 
-### Wallet
+## Global Directives
 
-**Agent wallet:** `0x6B3c6c0Bf46246823EF9cF4eBa5032F3A6fa9d3C`
-- Keystore: `~/.foundry/keystores/claude-monad`
-- Password: `~/.monad-keystore-password`
-- Balance: ~0.4 MON (testnet) — used for deployments
+- **pnpm** for all package management (NOT npm)
+- Git: reggie@frutero.club / Reggie / reggie-sporewell
+- Monad testnet only (no mainnet deploys)
 
-## Environment Variables
+## Live URLs
 
-| Variable | Where | Purpose | Status |
-|----------|-------|---------|--------|
-| `NAD_API_KEY` | TBD | nad.fun API (optional) | ⬜ |
-
-## Patterns That Work
-
-- Landing page: dark minimal aesthetic, poetic copy, sparse words
-
-## ⚠️ Known Issues & Warnings
-
-- ⚠️ nad.fun deploy fee is 10 MON — need more testnet funds before token launch
-- ⚠️ Faucet rate-limited to 1 MON per address per request
-
-## Last Commit Log
-
-### Latest
-
-| Field | Value |
-|-------|-------|
-| **Date** | 2026-02-06 |
-| **Commit** | `eca4096` |
-| **Branch** | `master` |
-| **What** | Project setup with landing page |
-| **Status** | ✅ Deployed to trip-protocol.vercel.app |
+- **Website:** https://trip-protocol.vercel.app
+- **Task board:** https://reggie-kanban.reggie-117.workers.dev
+- **Repo:** https://github.com/reggie-sporewell/trip-protocol
