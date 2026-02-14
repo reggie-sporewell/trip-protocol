@@ -111,7 +111,7 @@ export function LandingD() {
                 {isHovered && (
                   <div className="absolute top-full left-1/2 -translate-x-1/2 mt-4 w-56 p-3 bg-[#0d0d0d] border border-neutral-700 rounded font-terminal text-xs text-left z-20">
                     <div className="text-neutral-300 mb-1">{node.name}</div>
-                    <div className="text-yellow-400 mb-2">{'█'.repeat(node.potency)}{'░'.repeat(5 - node.potency)} {node.potency}/5</div>
+                    <div className="text-yellow-400 mb-2">{'█'.repeat(Math.min(5,Math.round(node.potency)))}{'░'.repeat(5 - Math.min(5,Math.round(node.potency)))} {node.potency}/5</div>
                     <div className="text-neutral-500 leading-relaxed">{node.description}</div>
                   </div>
                 )}

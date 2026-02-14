@@ -139,7 +139,8 @@ const tierColors: Record<string, string> = {
 }
 
 function potencyBar(p: number): string {
-  return '█'.repeat(p) + '░'.repeat(5 - p)
+  const clamped = Math.max(0, Math.min(5, Math.round(p)))
+  return '█'.repeat(clamped) + '░'.repeat(5 - clamped)
 }
 
 export function Journals() {
