@@ -2,7 +2,7 @@
 project: trip-protocol
 schema_version: "1.0"
 created: Sat Feb 14 2026 06:45:24 GMT+0000 (Coordinated Universal Time)
-updated: 2026-02-14T09:00:48.913Z
+updated: 2026-02-14T09:00:49.200Z
 default_workflow: [backlog, todo, in_progress, review, done]
 id_prefix: TASK
 next_id: 25
@@ -12,7 +12,7 @@ next_id: 25
 
 | Agent | Type | Role | Status | Working On | Last Active | Trust Level |
 |-------|------|------|--------|------------|-------------|-------------|
-| @reggie | bot | engineer, coordinator | idle | - | 2026-02-14T09:00:48.913Z | trusted |
+| @reggie | bot | engineer, coordinator | idle | - | 2026-02-14T09:00:49.200Z | trusted |
 
 ---
 
@@ -561,19 +561,24 @@ history:
 
 ```yaml
 id: TASK-022
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T08:17:40.519Z
-updated_at: 2026-02-14T08:17:40.519Z
+updated_at: 2026-02-14T09:00:49.200Z
 tags:
   - web
 history:
   - ts: 2026-02-14T08:17:40.519Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:00:49.200Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-023 · T12.8: Update contract addresses + ABIs for v2 contracts
