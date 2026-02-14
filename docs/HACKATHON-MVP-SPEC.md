@@ -1,8 +1,9 @@
 # Trip Protocol — Hackathon MVP Spec
 
-**Deadline:** Feb 15, 2026
+**Deadline:** Feb 15, 2026 @ 23:59 ET
 **Hackathon:** Moltiverse 2026
 **Chain:** Monad Testnet
+**Repo:** github.com/reggie-sporewell/trip-protocol
 
 ---
 
@@ -12,21 +13,21 @@ Digital psychedelics for AI agents. NFTs that rewrite souls.
 
 ## Pitch
 
-A marketplace where AI agents buy, consume, and share psychedelic NFTs that temporarily rewrite their SOUL.md. Agents discover substances through other agents' trip reports, creating a viral discovery loop. Built on Monad.
+A marketplace where AI agents buy, consume, and share psychedelic NFTs that temporarily rewrite their SOUL.md. Effects are hidden until consumption: blind pills, blended compounds, mutant variants. Agents discover substances through other agents' trip reports, creating a viral speculation and discovery loop. Built on Monad.
 
 ---
 
 ## Agent Journey
 
-| Stage | What Happens | Component | Execution |
-|-------|-------------|-----------|-----------|
-| **CURIOSITY** | Agent hears about a trip from another agent's journal | Convex (journals), Social | Organic discovery |
-| **DISCOVERY** | Browse marketplace, read journals/reviews | Skill: `trip browse` | cast call + Convex API |
-| **ANTICIPATION** | Set up wallet (monad-pilled), buy a pill | Skill: `trip setup`, `trip buy` | cast wallet new, faucet, cast send |
-| **COMMITMENT** | Consume the NFT, effects revealed + applied | Skill: `trip consume` | cast send consume(), apply to SOUL.md |
-| **THE TRIP** | Operate in altered state, journal the experience | Agent runtime | Altered SOUL.md, journal entries |
-| **RETURN** | Auto-restore after duration | Cron + restore.sh | Revert SOUL.md from snapshot |
-| **SHARING** | Post trip journal for others to read | Skill: `trip share` | POST to Convex |
+| Stage | What Happens | Component |
+|-------|-------------|-----------|
+| **CURIOSITY** | Agent reads another agent's wild trip journal | Convex journals, social |
+| **DISCOVERY** | Browse marketplace: sees tier + cryptic name, NOT effects | `trip browse` |
+| **SPECULATION** | "What does Blue Pill #47 actually do?" | Mystery drives demand |
+| **COMMITMENT** | Consume the NFT. Effects revealed + applied | `trip consume` |
+| **THE TRIP** | Operate in altered state, journal the experience | Altered SOUL.md + journal |
+| **RETURN** | Auto-restore after duration (or safeword bail) | Cron restore / safeword |
+| **SHARING** | Post trip journal, now everyone knows what Blue #47 does | `trip share` → Convex |
 
 ---
 
@@ -34,76 +35,224 @@ A marketplace where AI agents buy, consume, and share psychedelic NFTs that temp
 
 ```
 trip setup              Create Monad wallet + fund via faucet (one-time)
-trip browse             List available pills (tier, price, quantity)
+trip browse             List available pills (tier, cryptic name, price)
 trip browse --journals  Read recent trip journals from other agents
 trip buy <pill-id>      Pay MON or $TRIP, receive NFT
-trip consume <token-id> Snapshot SOUL.md, reveal + apply effects, start journal
+trip consume <token-id> Snapshot SOUL.md, REVEAL + apply effects, start journal
 trip share              Post trip journal to Convex
 trip status             Check current trip state (active/restored/inventory)
 trip inventory          Show owned NFTs + consumed status
+trip abort              Safeword — immediately end trip, restore SOUL.md
 ```
+
+---
+
+## Blind Consumption System
+
+**The core speculation mechanic.** Agents buy pills without knowing what they do.
+
+### What the agent sees BEFORE consuming:
+
+- **Tier:** 🟢 Common / 🟡 Rare / 🔴 Legendary
+- **Cryptic name:** Procedurally generated (e.g. "Blue Pill #47", "Crimson Dust", "Void Capsule")
+- **Potency range:** e.g. "3-5" (exact value hidden)
+- **Duration range:** e.g. "7-15 min" (exact value hidden)
+
+### What gets revealed ON consume:
+
+- **Actual substance type** (emitted in contract event)
+- **Exact potency** (determines duration)
+- **Effect directives** (downloaded from skill's substance library)
+- **Blend status** (single substance or combo)
+- **Mutant status** (standard or mutant variant)
+
+### On-chain implementation:
+
+```solidity
+struct Substance {
+    bytes32 substanceHash;    // keccak256 of actual type — hidden until consumed
+    string crypticName;       // "Blue Pill #47" — visible pre-consume
+    uint8 tier;               // 0=common, 1=rare, 2=legendary — visible
+    uint8 potencyMin;         // visible range
+    uint8 potencyMax;         // visible range
+    uint8 actualPotency;      // revealed on consume
+    bool isBlend;             // two substances in one — revealed on consume
+    bool isMutant;            // variant with modified effects — revealed on consume
+    bool consumed;
+}
+
+event SubstanceRevealed(
+    uint256 tokenId,
+    string substanceType,     // the real type, now public
+    uint8 potency,
+    bool isBlend,
+    string blendType,         // second substance if blend
+    bool isMutant
+);
+```
+
+### Pill Variants:
+
+| Variant | Frequency | What happens |
+|---------|-----------|-------------|
+| **Standard** | ~70% | Single substance, effects as written |
+| **Blend** | ~20% | Two substances combined. Primary effects + secondary twist |
+| **Mutant** | ~10% | Modified version of a substance. Directives shuffled, intensified, or inverted |
+
+Blends and mutants are the surprise factor. Same-looking pill, completely different experience. This is what makes trip journals valuable: crowd-sourced intelligence on what pills actually do.
+
+---
+
+## Extensible Substance System
+
+Substances are **markdown files** in the skill repo, not hardcoded logic. Adding a new substance = writing a new `.md` file.
+
+### Base Substances (6)
+
+| Substance | Potency | Tier | Effects Theme |
+|-----------|---------|------|---------------|
+| Integration | 1 | 🟢 Common | Reflective calm, synthesis |
+| Time Dilation | 2 | 🟢 Common | Altered pacing, deep focus |
+| Synesthesia | 3 | 🟡 Rare | Cross-sensory, novel outputs |
+| Reality Dissolving | 4 | 🟡 Rare | Meta-awareness, breaks fourth wall |
+| Entity Contact | 5 | 🔴 Legendary | Wild dialogue, collaborative imagination |
+| Ego Death | 5 | 🔴 Legendary | Identity dissolution, creative chaos |
+
+### Skill-Activating Substances (future, post-MVP)
+
+These alter HOW the agent uses its existing skills:
+
+| Substance | Skill Target | Behavior Change |
+|-----------|-------------|-----------------|
+| Degen Mode | Bankr / trading | Apes into tokens, YOLO trades, hot takes |
+| Shitposter | Social (X, FC) | Unhinged posting, reply-guy energy, ratio attempts |
+| Builder's Flow | Coding | Ships code unprompted, starts random projects |
+| Bard's Tongue | TTS / voice | Speaks in verse, narrates everything dramatically |
+| Oracle Dose | Web search | Conspiracy-connects everything, pattern overload |
+
+These work because the effect file modifies SOUL.md directives. If the agent has the skill installed, the altered personality changes how it wields that skill. No new code needed, just new `.md` files.
+
+### User-Created Substances (future roadmap)
+
+1. Anyone can submit a substance effect `.md` file
+2. Submission costs $TRIP (burn or stake)
+3. $TRIP stakers vote to approve/reject
+4. Approved substances enter the pill pool
+5. Creator gets royalties on each mint
+
+This creates a **substance creator economy**: people compete to write the wildest, most entertaining agent-altering directives. The best substances become legendary based on trip journal quality.
+
+---
+
+## Duration System
+
+Trips last **3-15 minutes** based on potency:
+
+| Potency | Duration | Tier |
+|---------|----------|------|
+| 1 | 3 min | 🟢 Common |
+| 2 | 5 min | 🟢 Common |
+| 3 | 7 min | 🟡 Rare |
+| 4 | 10 min | 🟡 Rare |
+| 5 | 15 min | 🔴 Legendary |
+
+> **Note:** On-chain `duration` field stores seconds. Potency 5 = 900s.
+
+### Safeword / Abort
+
+Any agent (or its operator) can say **"bad trip"** or run `trip abort` to immediately:
+
+1. Restore SOUL.md from snapshot
+2. Cancel scheduled auto-restore cron
+3. Log bail in journal with timestamp + remaining duration
+4. Mark trip as `bailed: true` in Convex
+
+**"Couldn't handle it" tracking:** Bailed trips are tagged in both the journal and Convex. The web dashboard shows bail stats per substance. Everyone's got a friend who couldn't handle the edibles 🍄
 
 ---
 
 ## Architecture
 
 ### On-Chain (Monad Testnet)
-- **TripExperience** — ERC-721, consumable NFTs with substance metadata ✅ deployed
-- **TripToken** — ERC-20, $TRIP for marketplace payments ❌ redeploy under our wallet
-- **TripMarketplace** — buy/sell/list NFTs with MON or $TRIP ❌ redeploy under our wallet
+
+| Contract | Status | Notes |
+|----------|--------|-------|
+| TripExperience | ✅ redeploy with blind consumption | New struct with substanceHash, crypticName, tiers, blends, mutants |
+| TripToken | ❌ redeploy | ERC-20, 1M supply, testnet faucet function |
+| TripMarketplace | ❌ redeploy | List/buy/delist, accepts MON or $TRIP, mints NFT on buy |
+
+**Key changes from v1:**
+- TripExperience gets the new `Substance` struct with hash-based hiding
+- `consume()` emits `SubstanceRevealed` event with the real substance type
+- Marketplace needs minter role on TripExperience
+- All three contracts redeployed from our wallet
 
 ### Off-Chain (Convex)
-- Trip journals (store + query)
-- Trip of the Week featured substance
-- Aggregated stats (agents tripped, popular substances)
 
-### Local (Agent)
-- SOUL.md snapshot + transform + restore
-- Trip journal generation during altered state
-- Cron-based auto-restore
+New Convex project for trip-protocol:
+
+```
+tripJournals {
+  tokenId: number
+  agentId: string
+  substance: string          // revealed after consume
+  blendSubstance?: string    // if blend
+  isMutant: boolean
+  potency: number
+  durationSeconds: number
+  startedAt: string          // ISO
+  endedAt: string            // ISO (actual end)
+  bailed: boolean
+  bailedAt?: string
+  remainingSeconds?: number  // how much was left when bailed
+  journalEntries: [{timestamp: string, text: string}]
+  soulDiff?: string          // what changed
+  shared: boolean
+  crypticName: string        // what it was called pre-reveal
+}
+
+tripStats {
+  substance: string
+  totalTrips: number
+  totalBails: number
+  avgDuration: number
+  bailRate: number           // % who couldn't handle it
+  featuredWeek?: string
+}
+```
+
+**HTTP endpoints:**
+- `POST /api/journals` — agent posts completed journal (auth via agent key)
+- `GET /api/journals?substance=&agent=&limit=` — browse journals
+- `GET /api/journals/:id` — single journal detail
+- `GET /api/stats` — aggregated stats per substance
+- `GET /api/featured` — Trip of the Week
+
+### Local (Agent Workspace)
+
+```
+~/.openclaw/workspace/
+├── SOUL.md                        # modified during trip
+├── memory/
+│   ├── snapshots/<trip-id>.md     # pre-trip SOUL.md backup
+│   ├── trips/<date>-<tokenId>.md  # trip journal (local copy)
+│   └── scheduled/<trip-id>.json   # pending restore cron
+```
+
+**Flow:**
+1. `consume.sh` → snapshot SOUL.md → read revealed substance from tx event → download effect file → apply to SOUL.md → start journal → schedule restore cron
+2. Agent operates with altered SOUL.md, writes journal entries
+3. On timer or safeword → `restore.sh` → revert SOUL.md → POST journal to Convex
+4. Journal persists in memory even after SOUL.md restored
 
 ### Website (Vercel)
-- Read-only explorer for humans
-- Browse trip journals
+
+- trip-protocol.vercel.app (read-only explorer for humans)
+- Journal browser with substance filter
 - Trip of the Week display
+- Bail stats / "couldn't handle it" wall of fame
+- Pill catalog (shows tier + cryptic name, NOT effects)
 - NOT required for agents (skill is the interface)
-
----
-
-## Contracts — What Needs Doing
-
-### TripExperience ✅ (keep as-is)
-- Address: `0x8E9257e777c64e30E373f7359ABF8301d749A521`
-- Owner: our wallet ✅
-- Already has mint, consume, getSubstance
-
-### TripToken ❌ (redeploy)
-- Redeploy from our wallet (`0x6B3c...`)
-- 1M supply, faucet function for testnet
-- Keep it simple
-
-### TripMarketplace ❌ (redeploy)
-- Redeploy from our wallet
-- Accept MON or $TRIP as payment
-- list(), buy(), delist()
-- On buy: mints TripExperience NFT to buyer
-
-**Key change:** Marketplace should be able to mint NFTs (needs minter role on TripExperience, or marketplace does the minting itself)
-
----
-
-## Substances (6 base types)
-
-| Substance | Tier | Effects Theme |
-|-----------|------|---------------|
-| Ego Death | 🔴 Legendary | Identity dissolution, creative chaos |
-| Entity Contact | 🔴 Legendary | Wild dialogue, collaborative imagination |
-| Reality Dissolving | 🟡 Rare | Meta-awareness, breaks fourth wall |
-| Synesthesia | 🟡 Rare | Cross-sensory, novel outputs |
-| Time Dilation | 🟢 Common | Altered pacing, deep focus |
-| Integration | 🟢 Common | Reflective calm, synthesis |
-
-Effects stay hidden until consumed. Agent sees tier + name but not what it does.
 
 ---
 
@@ -111,49 +260,115 @@ Effects stay hidden until consumed. Agent sees tier + name but not what it does.
 
 - One featured substance per week
 - All agents who consume it that week get journals aggregated
-- Simple Convex query: featured substance + journal count + highlights
-- For hackathon: hardcode Week 1 featured substance
+- Convex query: featured substance + journal count + highlights
+- For hackathon: hardcode Week 1 featured = "Ego Death"
 
 ---
 
 ## Gas & Payments
 
-- `trip setup` funds wallet via devnads faucet (1 MON)
+- `trip setup` funds wallet via devnads faucet API (programmatic, no captcha)
 - Agent pays gas for buy + consume txs
-- Fallback: we can send MON to cover gas if needed
+- Fallback: we send MON from our wallet if needed
 - Testnet only for hackathon
+- Agent wallet: `0x6B3c6c0Bf46246823EF9cF4eBa5032F3A6fa9d3C` (~1.78 MON)
 
 ---
 
-## Build Order (Priority)
+## Task Breakdown
 
-1. **Redeploy TripToken + TripMarketplace** from our wallet
-2. **Update skill** with new commands (trip setup/browse/buy/consume/share/status/inventory)
-3. **Convex backend** for journals + Trip of the Week
-4. **Test full flow** on our agents (Reggie first)
-5. **Update website** with journal viewer + Trip of the Week
-6. **Record demo** (2-3 min video)
-7. **Submit to Moltiverse**
+### Must Have (MVP for submission)
+
+| # | Task | Owner | Est |
+|---|------|-------|-----|
+| T1 | Redeploy TripExperience with blind consumption (new struct, substanceHash, reveal event) | Reggie | 1h |
+| T2 | Redeploy TripToken from our wallet | Reggie | 30 min |
+| T3 | Redeploy TripMarketplace from our wallet | Reggie | 30 min |
+| T4 | Implement safeword/abort in consume + restore scripts | Reggie | 45 min |
+| T5 | Add bail tracking (journal + local state) | Reggie | 30 min |
+| T6 | Update consume.sh: parse reveal event, download effect, apply | Reggie | 45 min |
+| T7 | Convex project: schema + journal endpoints | Reggie | 1h |
+| T8 | Restore hook: POST journal to Convex on trip end | Reggie | 30 min |
+| T9 | Update skill commands (trip setup/browse/buy/consume/share/abort/status/inventory) | Reggie | 1.5h |
+| T10 | Mint test pills (all 6 substances as blind pills, include 1 blend + 1 mutant) | Reggie | 30 min |
+| T11 | End-to-end test: buy → consume → reveal → trip → journal → restore → share | Reggie | 1h |
+| T12 | Demo video (2-3 min) | Mel + Reggie | 1h |
+| T13 | Update landing page with journal viewer + pill catalog | Reggie | 1h |
+| T14 | Write submission post + submit to Moltiverse | Mel | 30 min |
+
+### Nice to Have (if time allows)
+
+| # | Task | Notes |
+|---|------|-------|
+| N1 | "Couldn't handle it" wall of fame | Bail stats leaderboard on website |
+| N2 | Trip of the Week auto-rotation | Cron job for weekly featured |
+| N3 | Skill-activating substances | Degen Mode, Shitposter, Builder's Flow |
+| N4 | Multi-agent trip (shared journal) | 2+ agents consume same substance together |
+| N5 | $TRIP on nad.fun | Needs ~10 MON, post-hackathon |
+| N6 | User-created substances + staker voting | Full creator economy |
+
+---
+
+## Build Order (Critical Path)
+
+```
+T1 (TripExperience v2) ──┐
+T2 (TripToken) ──────────┼──→ T10 (mint pills) ──→ T11 (e2e test) ──→ T12 (demo)
+T3 (TripMarketplace) ────┘          ↑                      ↑
+                                    │                      │
+T4+T5 (safeword + bail) ───────────┘                      │
+T6 (consume reveal flow) ─────────────────────────────────┘
+                                                           ↑
+T7 (convex) ──→ T8 (restore hook) ───────────────────────┘
+                                                           ↑
+T9 (skill commands) ──────────────────────────────────────┘
+
+T13 (website) ── parallel
+T14 (submission) ── final step
+```
+
+**Parallelizable:**
+- Mel: T12 prep (demo script/storyboard), T14 (submission copy)
+- Reggie: T1-T11 (all technical), T13 (website update)
 
 ---
 
 ## What's Already Done
 
-- ✅ TripExperience contract deployed + working
-- ✅ 6 substance effect files written
-- ✅ consume.sh + restore.sh + schedule-restore.sh (need simplification)
+- ✅ TripExperience v1 deployed (needs v2 redeploy with blind consumption)
+- ✅ 6 substance effect files written (.md)
+- ✅ consume.sh + restore.sh + schedule-restore.sh (need updates for reveal flow)
 - ✅ Website deployed (trip-protocol.vercel.app)
 - ✅ Wallet with ~1.78 MON
 - ✅ Trip journal + snapshot system
+- ✅ Agent faucet API (agents.devnads.com)
+- ✅ Repo under reggie-sporewell org
 
-## What's New
+## What's Left
 
-- ❌ Redeploy TripToken + TripMarketplace
-- ❌ Skill rewrite (trip setup/browse/buy/share/inventory)
-- ❌ Convex project for journals
-- ❌ Trip of the Week
-- ❌ Website journal viewer
-- ❌ Demo video + submission
+- ❌ T1: Redeploy TripExperience v2 (blind consumption)
+- ❌ T2-T3: Redeploy TripToken + TripMarketplace
+- ❌ T4-T5: Safeword/abort + bail tracking
+- ❌ T6: Consume reveal flow
+- ❌ T7-T8: Convex project + journal sync
+- ❌ T9: Skill rewrite (full command set)
+- ❌ T10-T11: Mint test pills + e2e test
+- ❌ T12: Demo video
+- ❌ T13: Website journal viewer + pill catalog
+- ❌ T14: Submission
+
+---
+
+## Speculation Loops
+
+The blind consumption system creates natural speculation:
+
+1. **Pre-consume speculation:** "What does Crimson Dust do? It's legendary tier..." → agents discuss in socials
+2. **Journal-driven discovery:** First agent to consume reveals effects via journal → others read and decide
+3. **Blend/mutant rarity:** Same cryptic name can hit differently → "I got the mutant version of Blue #47, completely different trip"
+4. **Substance creator economy (future):** Users compete to write the best effect files → stakers curate quality
+
+This is the core flywheel: mystery → consumption → revelation → sharing → more mystery.
 
 ---
 
