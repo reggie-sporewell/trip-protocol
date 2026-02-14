@@ -1,9 +1,10 @@
 // @ts-nocheck - Temporary: ABI type inference issues with wagmi useReadContracts
+import { monadTestnet } from 'viem/chains'
 import { useState, useEffect } from 'react'
 import { useAccount, useReadContract, useReadContracts, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { formatEther } from 'viem'
 import { contracts } from '../config/wagmi'
-import { TripExperienceABI, TripMarketplaceABI, TripTokenABI } from '../config/abis'
+import { TripExperienceABI, TripMarketplaceABI } from '../config/abis'
 
 interface Listing {
   tokenId: bigint
@@ -36,6 +37,7 @@ export function Marketplace() {
   // @ts-ignore - ABI type inference issue with useReadContracts
   const { data: listingResults, refetch: refetchListings } = useReadContracts({
     contracts: tokenIds.map(id => ({
+      chainId: monadTestnet.id,
       address: contracts.tripMarketplace as `0x${string}`,
       abi: TripMarketplaceABI,
       functionName: 'listings',
@@ -45,11 +47,13 @@ export function Marketplace() {
   })
 
   // Get metadata for listed tokens
+  // Contract listings() returns (address seller, uint256 price)
+  // If seller is address(0), it's not listed
   const activeListingIds = listingResults
     ?.map((result, index) => {
-      const listing = result.result as [string, bigint, bigint, boolean] | undefined
-      if (listing && listing[3]) { // listing[3] = active
-        return { tokenId: tokenIds[index], seller: listing[0], price: listing[2] }
+      const listing = result.result as [string, bigint] | undefined
+      if (listing && listing[0] !== '0x0000000000000000000000000000000000000000' && listing[1] > 0n) {
+        return { tokenId: tokenIds[index], seller: listing[0], price: listing[1] }
       }
       return null
     })
@@ -58,6 +62,7 @@ export function Marketplace() {
   // @ts-ignore - ABI type inference issue with useReadContracts
   const { data: metadataResults } = useReadContracts({
     contracts: activeListingIds.map(item => ({
+      chainId: monadTestnet.id,
       address: contracts.tripExperience as `0x${string}`,
       abi: TripExperienceABI,
       functionName: 'getSubstance',
@@ -90,24 +95,12 @@ export function Marketplace() {
   }, [metadataResults, activeListingIds.length])
 
   // Buy flow
-  const { writeContract: approve, data: approveHash } = useWriteContract()
+  // const { writeContract: approve, data: approveHash } = useWriteContract()
   const { writeContract: buy, data: buyHash } = useWriteContract()
 
-  const { isSuccess: approveSuccess } = useWaitForTransactionReceipt({ hash: approveHash })
+  // const { isSuccess: approveSuccess } = useWaitForTransactionReceipt({ hash: approveHash })
   const { isSuccess: buySuccess } = useWaitForTransactionReceipt({ hash: buyHash })
 
-  // Handle approve -> buy
-  useEffect(() => {
-    if (approveSuccess && step === 'approving' && buyingTokenId !== null) {
-      setStep('buying')
-      buy({
-        address: contracts.tripMarketplace,
-        abi: TripMarketplaceABI,
-        functionName: 'buyPill',
-        args: [buyingTokenId],
-      })
-    }
-  }, [approveSuccess, step, buyingTokenId])
 
   // Handle buy success
   useEffect(() => {
@@ -121,12 +114,14 @@ export function Marketplace() {
   const handleBuy = (tokenId: bigint, price: bigint) => {
     if (!isConnected) return
     setBuyingTokenId(tokenId)
-    setStep('approving')
-    approve({
-      address: contracts.tripToken,
-      abi: TripTokenABI,
-      functionName: 'approve',
-      args: [contracts.tripMarketplace, price],
+    setStep('buying')
+    // Marketplace accepts native MON, not $TRIP tokens
+    buy({
+      address: contracts.tripMarketplace,
+      abi: TripMarketplaceABI,
+      functionName: 'buyPill',
+      args: [tokenId],
+      value: price,
     })
   }
 
@@ -172,7 +167,7 @@ export function Marketplace() {
             <div className="grid grid-cols-2 gap-2 font-terminal text-xs mb-4">
               <div>
                 <span className="text-neutral-600">potency:</span>
-                <span className="text-green-400 ml-2">{'█'.repeat(listing.potency)}{'░'.repeat(5-listing.potency)}</span>
+                <span className="text-green-400 ml-2">{'█'.repeat(Math.min(5,Math.max(0,listing.potency)))}{'░'.repeat(5-Math.min(5,Math.max(0,listing.potency)))}</span>
               </div>
               <div>
                 <span className="text-neutral-600">duration:</span>
@@ -185,7 +180,7 @@ export function Marketplace() {
               <div className="flex justify-between items-center mb-3">
                 <span className="text-neutral-500 font-terminal text-xs">price:</span>
                 <span className="text-green-400 font-terminal text-lg">
-                  {formatEther(listing.price)} $TRIP
+                  {formatEther(listing.price)} MON
                 </span>
               </div>
 
