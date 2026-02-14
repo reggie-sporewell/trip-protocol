@@ -2,7 +2,7 @@
 project: trip-protocol
 schema_version: "1.0"
 created: Sat Feb 14 2026 06:45:24 GMT+0000 (Coordinated Universal Time)
-updated: 2026-02-14T09:00:47.387Z
+updated: 2026-02-14T09:00:47.685Z
 default_workflow: [backlog, todo, in_progress, review, done]
 id_prefix: TASK
 next_id: 25
@@ -12,7 +12,7 @@ next_id: 25
 
 | Agent | Type | Role | Status | Working On | Last Active | Trust Level |
 |-------|------|------|--------|------------|-------------|-------------|
-| @reggie | bot | engineer, coordinator | idle | - | 2026-02-14T09:00:47.387Z | trusted |
+| @reggie | bot | engineer, coordinator | idle | - | 2026-02-14T09:00:47.685Z | trusted |
 
 ---
 
@@ -441,19 +441,24 @@ history:
 
 ```yaml
 id: TASK-017
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T08:17:39.163Z
-updated_at: 2026-02-14T08:17:39.163Z
+updated_at: 2026-02-14T09:00:47.685Z
 tags:
   - web
 history:
   - ts: 2026-02-14T08:17:39.163Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:00:47.685Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-018 · T12.3: Trip Stats dashboard - substance stats, bail rates, trip counts
