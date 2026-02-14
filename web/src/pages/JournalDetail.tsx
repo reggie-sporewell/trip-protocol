@@ -35,7 +35,7 @@ const tierColors: Record<string, string> = {
 }
 
 function potencyBar(p: number): string {
-  return '█'.repeat(p) + '░'.repeat(5 - p)
+  const c = Math.max(0, Math.min(5, Math.round(p))); return '█'.repeat(c) + '░'.repeat(5 - c)
 }
 
 export function JournalDetail() {
