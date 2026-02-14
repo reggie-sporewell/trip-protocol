@@ -2,17 +2,17 @@
 project: trip-protocol
 schema_version: "1.0"
 created: Sat Feb 14 2026 06:45:24 GMT+0000 (Coordinated Universal Time)
-updated: 2026-02-14T08:17:41.073Z
+updated: 2026-02-14T17:53:20.112Z
 default_workflow: [backlog, todo, in_progress, review, done]
 id_prefix: TASK
-next_id: 25
+next_id: 28
 ---
 
 ## Agents
 
 | Agent | Type | Role | Status | Working On | Last Active | Trust Level |
 |-------|------|------|--------|------------|-------------|-------------|
-| @reggie | bot | engineer, coordinator | idle | - | 2026-02-14T06:45:50.546Z | trusted |
+| @reggie | bot | engineer, coordinator | idle | - | 2026-02-14T09:02:07.154Z | trusted |
 
 ---
 
@@ -341,19 +341,24 @@ history:
 
 ```yaml
 id: TASK-012
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T06:45:40.654Z
-updated_at: 2026-02-14T06:45:40.654Z
+updated_at: 2026-02-14T09:00:50.197Z
 tags:
   - web
 history:
   - ts: 2026-02-14T06:45:40.654Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:00:50.197Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-013 · Demo video (2-3 min)
@@ -398,188 +403,298 @@ history:
 
 ```yaml
 id: TASK-015
-status: backlog
+status: done
 priority: medium
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T06:45:41.410Z
-updated_at: 2026-02-14T06:45:41.410Z
+updated_at: 2026-02-14T09:02:07.154Z
 tags:
   - distribution
 history:
   - ts: 2026-02-14T06:45:41.410Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:02:07.154Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-016 · T12.1: Journal Viewer page - browse trip journals from Convex, filter by substance/agent
 
 ```yaml
 id: TASK-016
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T08:17:38.896Z
-updated_at: 2026-02-14T08:17:38.896Z
+updated_at: 2026-02-14T09:00:47.387Z
 tags:
   - web
 history:
   - ts: 2026-02-14T08:17:38.896Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:00:47.387Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-017 · T12.2: Pill Catalog page - display all 8 minted pills with tier/cryptic name/status
 
 ```yaml
 id: TASK-017
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T08:17:39.163Z
-updated_at: 2026-02-14T08:17:39.163Z
+updated_at: 2026-02-14T09:00:47.685Z
 tags:
   - web
 history:
   - ts: 2026-02-14T08:17:39.163Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:00:47.685Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-018 · T12.3: Trip Stats dashboard - substance stats, bail rates, trip counts
 
 ```yaml
 id: TASK-018
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T08:17:39.444Z
-updated_at: 2026-02-14T08:17:39.444Z
+updated_at: 2026-02-14T09:00:48.005Z
 tags:
   - web
 history:
   - ts: 2026-02-14T08:17:39.444Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:00:48.005Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-019 · T12.4: Individual Journal detail view - full trip log with timeline
 
 ```yaml
 id: TASK-019
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T08:17:39.710Z
-updated_at: 2026-02-14T08:17:39.710Z
+updated_at: 2026-02-14T09:00:48.326Z
 tags:
   - web
 history:
   - ts: 2026-02-14T08:17:39.710Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:00:48.326Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-020 · T12.5: Substance info cards - 6 base types with tier/potency/theme
 
 ```yaml
 id: TASK-020
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T08:17:39.973Z
-updated_at: 2026-02-14T08:17:39.973Z
+updated_at: 2026-02-14T09:00:48.621Z
 tags:
   - web
 history:
   - ts: 2026-02-14T08:17:39.973Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:00:48.621Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-021 · T12.6: A/B landing page proposals (4 variants) - same aesthetic, new narrative
 
 ```yaml
 id: TASK-021
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T08:17:40.253Z
-updated_at: 2026-02-14T08:17:40.253Z
+updated_at: 2026-02-14T09:00:48.913Z
 tags:
   - web
 history:
   - ts: 2026-02-14T08:17:40.253Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:00:48.913Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-022 · T12.7: Navigation/routing - React Router for multi-page app
 
 ```yaml
 id: TASK-022
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T08:17:40.519Z
-updated_at: 2026-02-14T08:17:40.519Z
+updated_at: 2026-02-14T09:00:49.200Z
 tags:
   - web
 history:
   - ts: 2026-02-14T08:17:40.519Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:00:49.200Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-023 · T12.8: Update contract addresses + ABIs for v2 contracts
 
 ```yaml
 id: TASK-023
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T08:17:40.775Z
-updated_at: 2026-02-14T08:17:40.775Z
+updated_at: 2026-02-14T09:00:49.525Z
 tags:
   - web
 history:
   - ts: 2026-02-14T08:17:40.775Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:00:49.525Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-024 · T12.9: Lint, build, test, deploy to dev branch
 
 ```yaml
 id: TASK-024
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T08:17:41.073Z
-updated_at: 2026-02-14T08:17:41.073Z
+updated_at: 2026-02-14T09:00:49.863Z
 tags:
   - web
 history:
   - ts: 2026-02-14T08:17:41.073Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-14T09:00:49.863Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
+```
+
+### TASK-025 · Fix /journals: map Convex schema fields (substance→substanceType, journalEntries→entries, durationSeconds→duration) + add error boundary
+
+```yaml
+id: TASK-025
+status: backlog
+priority: high
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-14T17:53:19.538Z
+updated_at: 2026-02-14T17:53:19.538Z
+tags:
+  - web
+  - bugfix
+history:
+  - ts: 2026-02-14T17:53:19.538Z
+    who: "@reggie"
+    action: created
+```
+
+### TASK-026 · Fix wallet connect: add fallback for no injected wallet, add WalletConnect connector, show 'install MetaMask' prompt
+
+```yaml
+id: TASK-026
+status: backlog
+priority: medium
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-14T17:53:19.830Z
+updated_at: 2026-02-14T17:53:19.830Z
+tags:
+  - web
+  - bugfix
+history:
+  - ts: 2026-02-14T17:53:19.830Z
+    who: "@reggie"
+    action: created
+```
+
+### TASK-027 · Merge landing page variants into final hero (discuss with Mel which elements to combine)
+
+```yaml
+id: TASK-027
+status: backlog
+priority: medium
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-14T17:53:20.112Z
+updated_at: 2026-02-14T17:53:20.112Z
+tags:
+  - web
+  - design
+history:
+  - ts: 2026-02-14T17:53:20.112Z
     who: "@reggie"
     action: created
 ```
