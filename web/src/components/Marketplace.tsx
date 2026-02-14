@@ -38,7 +38,7 @@ export function Marketplace() {
     contracts: tokenIds.map(id => ({
       address: contracts.tripMarketplace as `0x${string}`,
       abi: TripMarketplaceABI,
-      functionName: 'getListing',
+      functionName: 'listings',
       args: [id],
     })),
     query: { enabled: tokenIds.length > 0 },
@@ -103,7 +103,7 @@ export function Marketplace() {
       buy({
         address: contracts.tripMarketplace,
         abi: TripMarketplaceABI,
-        functionName: 'buy',
+        functionName: 'buyPill',
         args: [buyingTokenId],
       })
     }

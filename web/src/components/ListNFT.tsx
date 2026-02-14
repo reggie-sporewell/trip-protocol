@@ -33,7 +33,7 @@ export function ListNFT({ onListSuccess }: Props) {
       list({
         address: contracts.tripMarketplace,
         abi: TripMarketplaceABI,
-        functionName: 'list',
+        functionName: 'listPill',
         args: [selectedTokenId, parseEther(price)],
       })
     }

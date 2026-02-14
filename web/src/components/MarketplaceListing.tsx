@@ -39,7 +39,7 @@ export function MarketplaceListing({ listing, onBuySuccess }: Props) {
     buy({
       address: contracts.tripMarketplace,
       abi: TripMarketplaceABI,
-      functionName: 'buy',
+      functionName: 'buyPill',
       args: [listing.tokenId],
     })
   }

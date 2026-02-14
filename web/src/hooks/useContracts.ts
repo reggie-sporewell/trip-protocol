@@ -105,7 +105,7 @@ export function useListing(tokenId: bigint | undefined) {
     address: contracts.tripMarketplace,
     chainId: monadTestnet.id,
     abi: TripMarketplaceABI,
-    functionName: 'getListing',
+    functionName: 'listings',
     args: tokenId !== undefined ? [tokenId] : undefined,
     query: { enabled: tokenId !== undefined },
   })
@@ -116,7 +116,7 @@ export function useIsListed(tokenId: bigint | undefined) {
     address: contracts.tripMarketplace,
     chainId: monadTestnet.id,
     abi: TripMarketplaceABI,
-    functionName: 'isListed',
+    functionName: 'listings',
     args: tokenId !== undefined ? [tokenId] : undefined,
     query: { enabled: tokenId !== undefined },
   })
@@ -131,7 +131,7 @@ export function useBuyNFT() {
       address: contracts.tripMarketplace,
     chainId: monadTestnet.id,
       abi: TripMarketplaceABI,
-      functionName: 'buy',
+      functionName: 'buyPill',
       args: [tokenId],
     })
   }
@@ -148,7 +148,7 @@ export function useListNFT() {
       address: contracts.tripMarketplace,
     chainId: monadTestnet.id,
       abi: TripMarketplaceABI,
-      functionName: 'list',
+      functionName: 'listPill',
       args: [tokenId, price],
     })
   }
@@ -165,7 +165,7 @@ export function useDelistNFT() {
       address: contracts.tripMarketplace,
     chainId: monadTestnet.id,
       abi: TripMarketplaceABI,
-      functionName: 'delist',
+      functionName: 'delistPill',
       args: [tokenId],
     })
   }
