@@ -6,6 +6,7 @@ const navItems = [
   { path: '/catalog', label: 'CATALOG' },
   { path: '/journals', label: 'JOURNALS' },
   { path: '/stats', label: 'STATS' },
+  { path: '/gift', label: 'GIFT' },
 ]
 
 export function Navigation() {
