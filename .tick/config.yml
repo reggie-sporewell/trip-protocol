@@ -16,3 +16,9 @@ locking:
 agents:
   default_trust: restricted
   require_registration: true
+
+# Convex sync rule: sync to dashboard every 3 task updates
+sync:
+  convex_url: "https://graceful-grouse-563.convex.site"
+  sync_key: "tick-reggie-a45932a9b9603c0f41b3dbd4"
+  sync_every_n_updates: 3

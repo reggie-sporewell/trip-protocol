@@ -180,6 +180,18 @@ bash ~/clawd/projects/tick-coord/scripts/tick-sync.sh
 | Backend/Skill | Agent (auto) — merge if tests pass |
 | UI/Web | @troopdegen — tag for human review |
 
+## Task Tracking (tick-coord)
+
+- Tasks tracked in `TICK.md` via tick-md CLI
+- Agent: `@reggie`
+- **Convex sync rule: after every 3 local task updates, run:**
+  ```bash
+  CONVEX_SITE_URL=https://graceful-grouse-563.convex.site \
+  TICK_SYNC_KEY=tick-reggie-a45932a9b9603c0f41b3dbd4 \
+  bash ~/clawd/projects/tick-coord/scripts/tick-sync.sh
+  ```
+- Dashboard: https://reggie-kanban.reggie-117.workers.dev/
+
 ## Global Directives
 
 - **pnpm** for all package management (NOT npm)
