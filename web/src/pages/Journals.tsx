@@ -150,9 +150,10 @@ export function Journals() {
   useEffect(() => {
     fetchJournals(20)
       .then((data) => {
-        if (data && data.length > 0) setJournals(data)
+        if (data && data.length > 0) setJournals([...data, ...PLACEHOLDER_JOURNALS])
+        // Show real data first, placeholders after for a full-looking page
       })
-      .catch(() => {/* use placeholders */})
+      .catch(() => {/* use placeholders on error */})
   }, [])
 
   const filtered = filter === 'All'
