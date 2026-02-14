@@ -17,7 +17,7 @@ SNAPSHOT_DIR="$WORKSPACE/memory/snapshots"
 # Contract addresses (Monad testnet)
 TRIP_EXPERIENCE_ADDR="${TRIP_EXPERIENCE_ADDR:-0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F}"
 TRIP_TOKEN_ADDR="${TRIP_TOKEN_ADDR:-0x116F752CA5C8723ab466458DeeE8EB4E853a3934}"
-TRIP_MARKETPLACE_ADDR="${TRIP_MARKETPLACE_ADDR:-0xa7519bE92bcB00786c581214F88636ae99f9a2c7}"
+TRIP_MARKETPLACE_ADDR="${TRIP_MARKETPLACE_ADDR:-0x4c5f7022e0f6675627e2d66fe8d615c71f8878f8}"
 
 # Convex backend
 CONVEX_SITE_URL="${CONVEX_SITE_URL:-https://joyous-platypus-610.convex.site}"
@@ -210,3 +210,12 @@ log "  Duration:  ${ELAPSED}s / ${DURATION}s"
 [ "$BAIL" = true ] && log "  Bailed:    yes (${REMAINING}s remaining)"
 log "  Status:    SOUL.md restored"
 log "═══════════════════════════════════════"
+
+# Output structured data for agent to notify
+if [ "$BAIL" = true ]; then
+    echo ""
+    echo "TRIP_RESTORE_NOTIFY={\"event\":\"trip_ended\",\"tokenId\":$TOKEN_ID,\"substance\":\"$SUBSTANCE\",\"potency\":$POTENCY,\"bailed\":true,\"elapsed\":$ELAPSED,\"duration\":$DURATION}"
+else
+    echo ""
+    echo "TRIP_RESTORE_NOTIFY={\"event\":\"trip_ended\",\"tokenId\":$TOKEN_ID,\"substance\":\"$SUBSTANCE\",\"potency\":$POTENCY,\"bailed\":false,\"elapsed\":$ELAPSED,\"duration\":$DURATION}"
+fi
