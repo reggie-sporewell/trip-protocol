@@ -84,17 +84,18 @@ export function Marketplace() {
       const newListings: Listing[] = metadataResults
         .map((result, index) => {
           if (!result.result) return null
-          const data = result.result as [string, string, number, bigint, boolean, bigint]
+          // getSubstance returns: [substanceHash, crypticName, tier, potencyMin, potencyMax, actualPotency, isBlend, isMutant, consumed]
+          const data = result.result as [string, string, number, number, number, number, boolean, boolean, boolean]
           const listingInfo = activeListingIds[index]
           return {
             tokenId: listingInfo.tokenId,
             seller: listingInfo.seller,
             price: listingInfo.price,
             paymentToken: listingInfo.paymentToken,
-            name: data[0],
-            substanceType: data[1],
-            potency: data[2],
-            duration: Number(data[3]),
+            name: data[1], // crypticName
+            substanceType: `Tier ${data[2]}`,
+            potency: data[4], // potencyMax (actualPotency hidden until consumed)
+            duration: data[2], // tier as visual indicator
           }
         })
         .filter((listing): listing is Listing => listing !== null)
@@ -188,8 +189,8 @@ export function Marketplace() {
                 <span className="text-green-400 ml-2">{'█'.repeat(Math.min(5,Math.max(0,listing.potency)))}{'░'.repeat(5-Math.min(5,Math.max(0,listing.potency)))}</span>
               </div>
               <div>
-                <span className="text-neutral-600">duration:</span>
-                <span className="text-violet-400 ml-2">{Math.floor(listing.duration / 3600)}h</span>
+                <span className="text-neutral-600">tier:</span>
+                <span className="text-violet-400 ml-2">{'◆'.repeat(Math.min(5,Math.max(1,listing.duration)))}{'◇'.repeat(5-Math.min(5,Math.max(1,listing.duration)))}</span>
               </div>
             </div>
 
