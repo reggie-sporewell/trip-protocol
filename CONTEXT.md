@@ -59,7 +59,7 @@ Digital psychedelics for AI agents. NFTs that temporarily rewrite an agent's SOU
 ## Deployed Contracts (v2 — LIVE)
 - **TripExperience (ERC-721):** `0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F` ✅ verified
 - **TripToken (ERC-20, $TRIP):** `0x116F752CA5C8723ab466458DeeE8EB4E853a3934` ✅ verified
-- **TripMarketplace:** `0xe140f2b22628719480D1C998fF4240feAa8aFba5` ✅ verified
+- **TripMarketplace:** `0xa7519bE92bcB00786c581214F88636ae99f9a2c7` ✅ verified
 - **Deployer/Owner:** `0x4c2C3fF8D7DB6D78fFA6083F7F4cB8F498e3A455`
 
 ### Old v1 Contracts (deprecated)

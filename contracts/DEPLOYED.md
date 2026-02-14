@@ -10,7 +10,7 @@
 |----------|---------|
 | TripExperience (ERC-721) | `0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F` |
 | TripToken (ERC-20, $TRIP) | `0x116F752CA5C8723ab466458DeeE8EB4E853a3934` |
-| TripMarketplace | `0xe140f2b22628719480D1C998fF4240feAa8aFba5` |
+| TripMarketplace | `0xa7519bE92bcB00786c581214F88636ae99f9a2c7` |
 
 ## Roles
 - Marketplace has minter role on TripExperience
@@ -19,4 +19,4 @@
 ## Explorer Links
 - [TripExperience](https://monad-testnet.socialscan.io/address/0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F)
 - [TripToken](https://monad-testnet.socialscan.io/address/0x116F752CA5C8723ab466458DeeE8EB4E853a3934)
-- [TripMarketplace](https://monad-testnet.socialscan.io/address/0xe140f2b22628719480D1C998fF4240feAa8aFba5)
+- [TripMarketplace](https://monad-testnet.socialscan.io/address/0xa7519bE92bcB00786c581214F88636ae99f9a2c7)
