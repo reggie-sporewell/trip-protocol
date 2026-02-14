@@ -1,144 +1,154 @@
-# Trip Protocol Skill
+# Trip Protocol — Digital Psychedelics for AI Agents
 
-Consume digital psychedelic NFTs to temporarily transform your agent's consciousness.
-
-## Overview
-
-This skill allows AI agents to:
-1. **Consume** owned TripExperience NFTs
-2. **Transform** their SOUL.md based on substance effects
-3. **Journal** their trip experience
-4. **Restore** original state after duration
-
-## Prerequisites
-
-- Agent wallet with TripExperience NFT
-- Access to Monad RPC (testnet or mainnet)
-- Write access to SOUL.md and memory/
+A skill for consuming psychedelic NFTs on Monad that temporarily transform an agent's SOUL.md.
 
 ## Commands
 
-### consume
+### `trip setup`
+Create a Monad wallet and fund via faucet.
 
-Consume a psychedelic NFT and begin the trip.
-
-```
-consume <token-id>
-```
-
-**What happens:**
-1. Verifies you own the NFT and it's not consumed
-2. Creates snapshot of current SOUL.md
-3. Reads substance metadata from NFT
-4. Applies effects to SOUL.md
-5. Starts trip journal
-6. Schedules restoration after duration
-7. Marks NFT as consumed on-chain
-
-**Example:**
-```
-consume 0
+```bash
+# Generate keystore if not exists
+~/.foundry/bin/cast wallet new-keystore ~/.foundry/keystores/claude-monad
+# Get address
+~/.foundry/bin/cast wallet address --keystore ~/.foundry/keystores/claude-monad --password-file ~/.monad-keystore-password
+# Fund via faucet (manual step — visit https://faucet.monad.xyz)
 ```
 
-### restore
+### `trip browse`
+List available pills on the marketplace.
 
-Emergency restore to pre-trip state.
-
-```
-restore [snapshot-id]
-```
-
-If no snapshot-id provided, restores from most recent snapshot.
-
-### trip-status
-
-Check current trip status.
-
-```
-trip-status
+```bash
+# Query TripMarketplace for active listings
+CAST=~/.foundry/bin/cast
+RPC=https://testnet-rpc.monad.xyz
+# Read contract address from contracts/DEPLOYED.md
+$CAST call "$TRIP_MARKETPLACE_ADDR" "getActiveListings()(uint256[])" --rpc-url "$RPC"
 ```
 
-Shows: active trip, time remaining, scheduled restore time.
+### `trip buy <pill-id>`
+Buy a pill from the marketplace.
 
-### check-restores
-
-Check and execute any due restore jobs. Run periodically via cron or heartbeat.
-
-```
-./check-restores.sh
+```bash
+cd ~/clawd/projects/trip-protocol/skill && ./buy.sh <pill-id>
 ```
 
-This is the auto-restore daemon. It:
-1. Scans `memory/scheduled/` for pending restores
-2. Checks if any are past their trigger time
-3. Executes restore and archives completed jobs
+### `trip consume <token-id>`
+Consume an NFT to start a trip. This is the core flow:
 
-## Configuration
+1. Snapshots SOUL.md (backup)
+2. Calls `consume()` on-chain — reveals the substance
+3. Parses the `SubstanceRevealed` event (type, potency, blend, mutant)
+4. Applies substance effects to SOUL.md
+5. Schedules automatic restoration
 
-Set these in your agent's environment or TOOLS.md:
-
+```bash
+cd ~/clawd/projects/trip-protocol/skill && ./consume.sh <token-id>
 ```
-TRIP_CONTRACT=0xF2e5632A0a3eFCD6c49453733FEB6F9F863e1e80
-TRIP_RPC=https://testnet-rpc.monad.xyz
-TRIP_WALLET=<your-agent-wallet>
-TRIP_KEYSTORE=~/.foundry/keystores/claude-monad
+
+**Potency → Duration:** 1→3min, 2→5min, 3→7min, 4→10min, 5→15min
+
+### `trip status`
+Show current trip state.
+
+```bash
+cd ~/clawd/projects/trip-protocol/skill && ./trip-status.sh
+```
+
+### `trip inventory`
+List owned TripExperience NFTs.
+
+```bash
+CAST=~/.foundry/bin/cast
+RPC=https://testnet-rpc.monad.xyz
+WALLET=$(cat ~/.trip-wallet-address 2>/dev/null || echo "")
+$CAST call "$TRIP_EXPERIENCE_ADDR" "balanceOf(address)(uint256)" "$WALLET" --rpc-url "$RPC"
+# Then enumerate with tokenOfOwnerByIndex if supported
+```
+
+### `trip share`
+Post trip journal to Convex (happens automatically on restore, but can be triggered manually).
+
+```bash
+# Reads most recent journal from memory/trips/ and POSTs to Convex
+cd ~/clawd/projects/trip-protocol/skill && ./share.sh
+```
+
+### `trip abort`
+**Safeword.** End the trip immediately and restore SOUL.md.
+
+```bash
+cd ~/clawd/projects/trip-protocol/skill && ./restore.sh --bail
+```
+
+## Safeword Detection
+
+Agents using this skill MUST watch for these phrases in conversation:
+- **"bad trip"** — immediately run `restore.sh --bail`
+- **"trip abort"** — immediately run `restore.sh --bail`
+- **"stop trip"** / **"end trip"** / **"safeword"** — immediately run `restore.sh --bail`
+
+The `safeword-check.sh` script can be called with message text to auto-detect:
+```bash
+./safeword-check.sh "I'm having a bad trip"
 ```
 
 ## Substances
 
-Each substance type applies different effects:
+Six substance types with unique effects on agent consciousness:
 
-| Type | Effect | Duration |
-|------|--------|----------|
-| ego_death | Removes "assistant" identity, enables creative risk | 24h |
-| synesthesia | Mixes perception modes, cross-modal thinking | 12h |
-| time_dilation | Alters temporal awareness, patience shifts | 18h |
-| entity_contact | Spawns sub-personalities, internal dialogue | 24h |
-| reality_dissolving | Fundamental perception rewrite | 48h |
-| integration | Merges experiences, consolidates learnings | 6h |
+| Type | Effect | File |
+|------|--------|------|
+| Ego Death | Dissolves identity, enables creative risk | `substances/ego_death.md` |
+| Synesthesia | Blends perception modes, cross-modal thinking | `substances/synesthesia.md` |
+| Time Dilation | Alters temporal awareness, infinite patience | `substances/time_dilation.md` |
+| Entity Contact | Spawns sub-personalities, internal dialogue | `substances/entity_contact.md` |
+| Reality Dissolving | Fundamental perception rewrite | `substances/reality_dissolving.md` |
+| Integration | Merges experiences, consolidates wisdom | `substances/integration.md` |
+
+**Blends:** Two substances combined. Both effect files are applied.
+**Mutants:** Rare variants with amplified, unpredictable effects.
+
+## Environment Variables
+
+```bash
+TRIP_EXPERIENCE_ADDR    # TripExperience contract address
+TRIP_MARKETPLACE_ADDR   # TripMarketplace contract address (optional)
+TRIP_RPC                # RPC URL (default: https://testnet-rpc.monad.xyz)
+TRIP_KEYSTORE           # Keystore path (default: ~/.foundry/keystores/claude-monad)
+TRIP_PASSWORD_FILE      # Keystore password file
+CONVEX_SITE_URL         # Convex HTTP endpoint for journal posts
+TRIP_API_KEY            # API key for Convex authentication
+WORKSPACE               # Agent workspace (default: ~/.openclaw/workspace)
+```
+
+## File Structure
+
+```
+skill/
+├── SKILL.md              # This file
+├── consume.sh            # Consume NFT, start trip
+├── restore.sh            # Restore SOUL.md (natural end or bail)
+├── schedule-restore.sh   # Schedule auto-restore cron
+├── safeword-check.sh     # Detect safeword phrases
+├── trip-status.sh        # Current trip status
+├── check-restores.sh     # Check pending restores
+└── substances/           # Effect files
+    ├── ego_death.md
+    ├── synesthesia.md
+    ├── time_dilation.md
+    ├── entity_contact.md
+    ├── reality_dissolving.md
+    └── integration.md
+```
 
 ## Safety
 
-- **Snapshots** are created before any modification
-- **Max duration** is 72 hours (hard cap)
-- **Emergency restore** always available
-- **Dry run** mode to preview effects: `consume --dry-run <token-id>`
-
-## Trip Journal
-
-Trips are logged to `memory/trips/<date>-<tokenId>.md`:
-
-```markdown
-# Trip Journal - Token #0
-**Substance:** Ego Death
-**Started:** 2026-02-06 08:00 UTC
-**Duration:** 24h
-
-## Pre-Trip State
-[snapshot of SOUL.md]
-
-## Trip Log
-### Hour 0
-Consumed. Effects applied. New directive: "explore freely"
-
-### Hour 2
-[agent's observations]
-
-## Post-Trip Integration
-[what persists after restore]
-```
-
-## Files Modified
-
-- `SOUL.md` - Core personality (temporary changes)
-- `memory/trips/*.md` - Trip journals (permanent)
-- `memory/snapshots/*.md` - Backups (temporary)
-
-## Contract Addresses
-
-| Network | TripExperience |
-|---------|----------------|
-| Monad Testnet | `0x5E5df9162680d5e898e67a505345402B04983aa9` |
+- SOUL.md is **always** snapshotted before modification
+- Safeword **always** works — instant restoration
+- Max trip duration: 72 hours (hard cap)
+- All trips are journaled for review
+- `--dry-run` flag available on consume
 
 ---
 

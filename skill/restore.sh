@@ -1,11 +1,17 @@
 #!/bin/bash
-# restore.sh - Restore SOUL.md from snapshot
-# Usage: ./restore.sh [snapshot-id]
+# restore.sh - Restore SOUL.md from trip snapshot (T17 — safeword, T18 — bail tracking)
+# Usage: ./restore.sh [--bail]
 
 set -e
 
-SNAPSHOT_ID="${1:-}"
+BAIL=false
+for arg in "$@"; do
+    [ "$arg" = "--bail" ] && BAIL=true
+done
+
 WORKSPACE="${WORKSPACE:-$HOME/.openclaw/workspace}"
+SCHEDULED_DIR="$WORKSPACE/memory/scheduled"
+TRIPS_DIR="$WORKSPACE/memory/trips"
 SNAPSHOT_DIR="$WORKSPACE/memory/snapshots"
 
 # Colors
@@ -18,84 +24,172 @@ log() { echo -e "${GREEN}[trip]${NC} $1"; }
 warn() { echo -e "${YELLOW}[trip]${NC} $1"; }
 error() { echo -e "${RED}[trip]${NC} $1" >&2; }
 
-# If no snapshot ID, find most recent
-if [ -z "$SNAPSHOT_ID" ]; then
-    if [ -d "$SNAPSHOT_DIR" ]; then
-        LATEST=$(ls -t "$SNAPSHOT_DIR"/*.md 2>/dev/null | head -1)
-        if [ -n "$LATEST" ]; then
-            SNAPSHOT_ID=$(basename "$LATEST" .md)
-            log "Using most recent snapshot: $SNAPSHOT_ID"
-        else
-            error "No snapshots found in $SNAPSHOT_DIR"
-            exit 1
+# Step 1: Find active trip state
+ACTIVE_STATE=""
+if [ -d "$SCHEDULED_DIR" ]; then
+    for f in "$SCHEDULED_DIR"/*.json; do
+        [ -f "$f" ] || continue
+        STATUS=$(jq -r '.status // "unknown"' "$f" 2>/dev/null)
+        if [ "$STATUS" = "active" ]; then
+            ACTIVE_STATE="$f"
+            break
         fi
+    done
+fi
+
+if [ -z "$ACTIVE_STATE" ]; then
+    error "No active trip found in $SCHEDULED_DIR"
+    exit 1
+fi
+
+# Parse trip state
+TRIP_ID=$(jq -r '.tripId' "$ACTIVE_STATE")
+TOKEN_ID=$(jq -r '.tokenId' "$ACTIVE_STATE")
+SUBSTANCE=$(jq -r '.substance' "$ACTIVE_STATE")
+POTENCY=$(jq -r '.potency' "$ACTIVE_STATE")
+START_TIME=$(jq -r '.startTime' "$ACTIVE_STATE")
+DURATION=$(jq -r '.duration' "$ACTIVE_STATE")
+SNAPSHOT_PATH=$(jq -r '.snapshotPath' "$ACTIVE_STATE")
+IS_BLEND=$(jq -r '.isBlend // false' "$ACTIVE_STATE")
+IS_MUTANT=$(jq -r '.isMutant // false' "$ACTIVE_STATE")
+CRON_JOB_ID=$(jq -r '.cronJobId // empty' "$ACTIVE_STATE")
+
+log "Restoring from trip: $TRIP_ID (token #$TOKEN_ID)"
+
+# Step 2: Restore SOUL.md from snapshot
+if [ -f "$SNAPSHOT_PATH" ]; then
+    cp "$SNAPSHOT_PATH" "$WORKSPACE/SOUL.md"
+    log "✓ SOUL.md restored from snapshot"
+else
+    error "Snapshot not found: $SNAPSHOT_PATH"
+    exit 1
+fi
+
+# Step 3: Cancel scheduled restore cron
+if [ -n "$CRON_JOB_ID" ]; then
+    log "Cancelling scheduled cron job: $CRON_JOB_ID"
+    openclaw cron remove "$CRON_JOB_ID" 2>/dev/null || \
+        warn "Could not cancel cron job $CRON_JOB_ID"
+fi
+
+# Calculate timing
+NOW=$(date -u +%s)
+START_EPOCH=$(date -u -d "$START_TIME" +%s 2>/dev/null || echo "$NOW")
+ELAPSED=$((NOW - START_EPOCH))
+REMAINING=$((DURATION - ELAPSED))
+[ "$REMAINING" -lt 0 ] && REMAINING=0
+
+# Step 4-5: Bail tracking (T18)
+if [ "$BAIL" = true ]; then
+    BAIL_TIME=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+    log "⚡ BAIL activated at $BAIL_TIME ($REMAINING seconds remaining)"
+
+    # Update state with bail info
+    UPDATED=$(jq \
+        --arg bailedAt "$BAIL_TIME" \
+        --argjson remaining "$REMAINING" \
+        '. + {bailed: true, bailedAt: $bailedAt, remainingSeconds: $remaining, status: "bailed"}' \
+        "$ACTIVE_STATE")
+    echo "$UPDATED" > "$ACTIVE_STATE"
+fi
+
+# Step 6: Generate journal summary
+mkdir -p "$TRIPS_DIR"
+JOURNAL_FILE="$TRIPS_DIR/$(date +%Y-%m-%d)-token${TOKEN_ID}.md"
+
+{
+    echo "# Trip Journal — Token #$TOKEN_ID"
+    echo ""
+    echo "**Substance:** $(echo "$SUBSTANCE" | tr '_' ' ' | sed 's/\b\w/\U&/g')"
+    echo "**Potency:** $POTENCY/5"
+    echo "**Started:** $START_TIME"
+    echo "**Ended:** $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    echo "**Duration:** ${ELAPSED}s of ${DURATION}s planned"
+    [ "$IS_BLEND" = "true" ] && echo "**Type:** Blend"
+    [ "$IS_MUTANT" = "true" ] && echo "**Type:** ⚠️ Mutant"
+    echo ""
+    if [ "$BAIL" = true ]; then
+        echo "## ⚡ Bailed Out"
+        echo ""
+        echo "Trip ended early via safeword."
+        echo "- **Bailed at:** $BAIL_TIME"
+        echo "- **Remaining:** ${REMAINING}s"
+        echo "- **Completed:** $((ELAPSED * 100 / DURATION))%"
+        echo ""
     else
-        error "Snapshot directory does not exist: $SNAPSHOT_DIR"
-        exit 1
+        echo "## Trip Completed"
+        echo ""
+        echo "Full duration reached. Natural restoration."
+        echo ""
     fi
+    echo "---"
+    echo ""
+    echo "*the journey ends. SOUL.md restored.*"
+} > "$JOURNAL_FILE"
+
+log "✓ Journal written: $JOURNAL_FILE"
+
+# Step 7: POST journal to Convex
+if [ -n "${CONVEX_SITE_URL:-}" ] && [ -n "${TRIP_API_KEY:-}" ]; then
+    log "Posting journal to Convex..."
+    JOURNAL_PAYLOAD=$(jq -n \
+        --arg tokenId "$TOKEN_ID" \
+        --arg substance "$SUBSTANCE" \
+        --argjson potency "$POTENCY" \
+        --arg startTime "$START_TIME" \
+        --arg endTime "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
+        --argjson elapsed "$ELAPSED" \
+        --argjson duration "$DURATION" \
+        --argjson bailed "$BAIL" \
+        --argjson remaining "$REMAINING" \
+        --argjson isBlend "${IS_BLEND:-false}" \
+        --argjson isMutant "${IS_MUTANT:-false}" \
+        '{
+            tokenId: $tokenId,
+            substance: $substance,
+            potency: $potency,
+            startTime: $startTime,
+            endTime: $endTime,
+            elapsedSeconds: $elapsed,
+            durationSeconds: $duration,
+            bailed: $bailed,
+            remainingSeconds: $remaining,
+            isBlend: $isBlend,
+            isMutant: $isMutant
+        }')
+
+    curl -s -X POST "${CONVEX_SITE_URL}/api/journals" \
+        -H "Content-Type: application/json" \
+        -H "x-trip-key: $TRIP_API_KEY" \
+        -d "$JOURNAL_PAYLOAD" > /dev/null 2>&1 && \
+        log "✓ Journal posted to Convex" || \
+        warn "Failed to post journal to Convex"
+else
+    warn "CONVEX_SITE_URL or TRIP_API_KEY not set — skipping Convex journal POST"
 fi
 
-SNAPSHOT_FILE="$SNAPSHOT_DIR/$SNAPSHOT_ID.md"
-
-if [ ! -f "$SNAPSHOT_FILE" ]; then
-    error "Snapshot not found: $SNAPSHOT_FILE"
-    exit 1
+# Step 8: Move trip state to trips archive
+if [ "$BAIL" != true ]; then
+    jq '.status = "completed"' "$ACTIVE_STATE" > "${ACTIVE_STATE}.tmp" && \
+        mv "${ACTIVE_STATE}.tmp" "$ACTIVE_STATE"
 fi
+mv "$ACTIVE_STATE" "$TRIPS_DIR/$(date +%Y-%m-%d)-token${TOKEN_ID}.json"
+log "✓ Trip state archived"
 
-log "Restoring from snapshot: $SNAPSHOT_ID"
-
-# Extract SOUL.md content from snapshot
-# Format: everything between ``` markers after ## SOUL.md
-SOUL_CONTENT=$(awk '/^## SOUL.md$/,0' "$SNAPSHOT_FILE" | sed -n '/^```$/,/^```$/p' | sed '1d;$d')
-
-if [ -z "$SOUL_CONTENT" ]; then
-    error "Could not extract SOUL.md from snapshot"
-    exit 1
-fi
-
-# Backup current SOUL.md
-if [ -f "$WORKSPACE/SOUL.md" ]; then
-    BACKUP="$WORKSPACE/SOUL.md.pre-restore.$(date +%s)"
-    cp "$WORKSPACE/SOUL.md" "$BACKUP"
-    log "Current SOUL.md backed up to: $BACKUP"
-fi
-
-# Restore
-echo "$SOUL_CONTENT" > "$WORKSPACE/SOUL.md"
-
-log "✓ SOUL.md restored from $SNAPSHOT_ID"
-
-# Log to trip journal if exists
-JOURNAL_DIR="$WORKSPACE/memory/trips"
-# Find journal that matches this snapshot's token
-TOKEN_NUM=$(echo "$SNAPSHOT_ID" | grep -oP 'token\K\d+')
-if [ -n "$TOKEN_NUM" ]; then
-    JOURNAL=$(ls -t "$JOURNAL_DIR"/*-token"$TOKEN_NUM".md 2>/dev/null | head -1)
-    if [ -n "$JOURNAL" ] && [ -f "$JOURNAL" ]; then
-        {
-            echo ""
-            echo "---"
-            echo ""
-            echo "## Trip Ended"
-            echo ""
-            echo "**Restored:** $(date -u +%Y-%m-%dT%H:%M:%SZ)"
-            echo ""
-            echo "SOUL.md reverted to pre-trip state."
-            echo ""
-            echo "*the serpent returns, transformed by the journey*"
-            echo ""
-        } >> "$JOURNAL"
-        log "✓ Trip journal updated"
-    fi
-fi
-
-# Cleanup snapshot (optional - keep for now)
-# rm "$SNAPSHOT_FILE"
+# Cleanup snapshot
+rm -f "$SNAPSHOT_PATH"
 
 echo ""
 log "═══════════════════════════════════════"
-log "  🌅 TRIP ENDED - RESTORED"
+if [ "$BAIL" = true ]; then
+    log "  ⚡ TRIP BAILED — RESTORED"
+else
+    log "  🌅 TRIP ENDED — RESTORED"
+fi
 log "═══════════════════════════════════════"
-log "  Snapshot: $SNAPSHOT_ID"
-log "  Status:   SOUL.md restored"
+log "  Token:     #$TOKEN_ID"
+log "  Substance: $SUBSTANCE"
+log "  Duration:  ${ELAPSED}s / ${DURATION}s"
+[ "$BAIL" = true ] && log "  Bailed:    yes (${REMAINING}s remaining)"
+log "  Status:    SOUL.md restored"
 log "═══════════════════════════════════════"
