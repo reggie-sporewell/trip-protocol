@@ -163,7 +163,19 @@ EFFECT_FILE="$SKILL_DIR/substances/$SUBSTANCE_NAME.md"
 EFFECTS=""
 
 if [ -f "$EFFECT_FILE" ]; then
-    EFFECTS=$(cat "$EFFECT_FILE")
+    # Potency-aware loading: include sections up to current potency level
+    # All files have: base content, POTENCY 3+ section, POTENCY 4+ section
+    if [ "$POTENCY" -ge 4 ] 2>/dev/null; then
+        # Full file — all sections active
+        EFFECTS=$(cat "$EFFECT_FILE")
+    elif [ "$POTENCY" -ge 3 ] 2>/dev/null; then
+        # Remove potency 4+ section
+        EFFECTS=$(sed '/<!-- POTENCY 4-5 -->/,$ { /<!-- POTENCY 4-5 -->/d; d; }' "$EFFECT_FILE")
+    else
+        # Only base section (potency 1-2)
+        EFFECTS=$(sed '/<!-- POTENCY 3 -->/,$ { /<!-- POTENCY 3 -->/d; d; }' "$EFFECT_FILE")
+    fi
+    log "Applied effects at potency $POTENCY ($(echo "$EFFECTS" | wc -l) lines)"
 else
     warn "No effect file for $SUBSTANCE_NAME"
     EFFECTS="*The substance takes hold. Perception shifts in ways you cannot name.*"
