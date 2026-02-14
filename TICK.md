@@ -2,10 +2,10 @@
 project: trip-protocol
 schema_version: "1.0"
 created: Sat Feb 14 2026 06:45:24 GMT+0000 (Coordinated Universal Time)
-updated: 2026-02-14T09:02:07.154Z
+updated: 2026-02-14T17:53:20.112Z
 default_workflow: [backlog, todo, in_progress, review, done]
 id_prefix: TASK
-next_id: 25
+next_id: 28
 ---
 
 ## Agents
@@ -637,4 +637,64 @@ history:
     action: completed
     from: backlog
     to: done
+```
+
+### TASK-025 · Fix /journals: map Convex schema fields (substance→substanceType, journalEntries→entries, durationSeconds→duration) + add error boundary
+
+```yaml
+id: TASK-025
+status: backlog
+priority: high
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-14T17:53:19.538Z
+updated_at: 2026-02-14T17:53:19.538Z
+tags:
+  - web
+  - bugfix
+history:
+  - ts: 2026-02-14T17:53:19.538Z
+    who: "@reggie"
+    action: created
+```
+
+### TASK-026 · Fix wallet connect: add fallback for no injected wallet, add WalletConnect connector, show 'install MetaMask' prompt
+
+```yaml
+id: TASK-026
+status: backlog
+priority: medium
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-14T17:53:19.830Z
+updated_at: 2026-02-14T17:53:19.830Z
+tags:
+  - web
+  - bugfix
+history:
+  - ts: 2026-02-14T17:53:19.830Z
+    who: "@reggie"
+    action: created
+```
+
+### TASK-027 · Merge landing page variants into final hero (discuss with Mel which elements to combine)
+
+```yaml
+id: TASK-027
+status: backlog
+priority: medium
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-14T17:53:20.112Z
+updated_at: 2026-02-14T17:53:20.112Z
+tags:
+  - web
+  - design
+history:
+  - ts: 2026-02-14T17:53:20.112Z
+    who: "@reggie"
+    action: created
 ```
