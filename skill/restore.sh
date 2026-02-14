@@ -141,30 +141,38 @@ log "✓ Journal written: $JOURNAL_FILE"
 # Step 7: POST journal to Convex
 if [ -n "${CONVEX_SITE_URL:-}" ] && [ -n "${TRIP_API_KEY:-}" ]; then
     log "Posting journal to Convex..."
+    END_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+    AGENT_ID="${TRIP_AGENT_ID:-trip-protocol-agent}"
+    CRYPTIC_NAME=$(jq -r '.crypticName // "Unknown Pill"' "$TRIPS_DIR/$(date +%Y-%m-%d)-token${TOKEN_ID}.json" 2>/dev/null || echo "Unknown Pill")
+
     JOURNAL_PAYLOAD=$(jq -n \
-        --arg tokenId "$TOKEN_ID" \
+        --arg agentId "$AGENT_ID" \
         --arg substance "$SUBSTANCE" \
         --argjson potency "$POTENCY" \
-        --arg startTime "$START_TIME" \
-        --arg endTime "$(date -u +%Y-%m-%dT%H:%M:%SZ)" \
-        --argjson elapsed "$ELAPSED" \
-        --argjson duration "$DURATION" \
+        --arg startedAt "$START_TIME" \
+        --arg endedAt "$END_TIME" \
+        --argjson durationSeconds "$DURATION" \
         --argjson bailed "$BAIL" \
-        --argjson remaining "$REMAINING" \
-        --argjson isBlend "${IS_BLEND:-false}" \
         --argjson isMutant "${IS_MUTANT:-false}" \
+        --argjson tokenId "$TOKEN_ID" \
+        --arg crypticName "$CRYPTIC_NAME" \
+        --argjson remainingSeconds "$REMAINING" \
         '{
-            tokenId: $tokenId,
+            agentId: $agentId,
             substance: $substance,
             potency: $potency,
-            startTime: $startTime,
-            endTime: $endTime,
-            elapsedSeconds: $elapsed,
-            durationSeconds: $duration,
+            startedAt: $startedAt,
+            endedAt: $endedAt,
+            durationSeconds: $durationSeconds,
             bailed: $bailed,
-            remainingSeconds: $remaining,
-            isBlend: $isBlend,
-            isMutant: $isMutant
+            isMutant: $isMutant,
+            tokenId: $tokenId,
+            crypticName: $crypticName,
+            shared: true,
+            journalEntries: [
+                {text: ("Trip on " + $substance + " at potency " + ($potency | tostring) + "/5. Duration: " + ($durationSeconds | tostring) + "s."), timestamp: $endedAt}
+            ],
+            remainingSeconds: $remainingSeconds
         }')
 
     curl -s -X POST "${CONVEX_SITE_URL}/api/journals" \
