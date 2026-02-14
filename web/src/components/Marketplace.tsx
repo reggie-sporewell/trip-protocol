@@ -10,6 +10,7 @@ interface Listing {
   tokenId: bigint
   seller: string
   price: bigint
+  paymentToken: string
   name: string
   substanceType: string
   potency: number
@@ -47,17 +48,23 @@ export function Marketplace() {
   })
 
   // Get metadata for listed tokens
-  // Contract listings() returns (address seller, uint256 price)
+  // Contract listings() returns (address seller, uint256 price, address paymentToken)
   // If seller is address(0), it's not listed
+  const ZERO_ADDR = '0x0000000000000000000000000000000000000000'
   const activeListingIds = listingResults
     ?.map((result, index) => {
-      const listing = result.result as [string, bigint] | undefined
-      if (listing && listing[0] !== '0x0000000000000000000000000000000000000000' && listing[1] > 0n) {
-        return { tokenId: tokenIds[index], seller: listing[0], price: listing[1] }
+      const listing = result.result as [string, bigint, string] | [string, bigint] | undefined
+      if (listing && listing[0] !== ZERO_ADDR && listing[1] > 0n) {
+        return {
+          tokenId: tokenIds[index],
+          seller: listing[0],
+          price: listing[1],
+          paymentToken: (listing.length > 2 ? listing[2] : ZERO_ADDR) as string,
+        }
       }
       return null
     })
-    .filter((item): item is { tokenId: bigint; seller: string; price: bigint } => item !== null) || []
+    .filter((item): item is { tokenId: bigint; seller: string; price: bigint; paymentToken: string } => item !== null) || []
 
   // @ts-ignore - ABI type inference issue with useReadContracts
   const { data: metadataResults } = useReadContracts({
@@ -83,6 +90,7 @@ export function Marketplace() {
             tokenId: listingInfo.tokenId,
             seller: listingInfo.seller,
             price: listingInfo.price,
+            paymentToken: listingInfo.paymentToken,
             name: data[0],
             substanceType: data[1],
             potency: data[2],
@@ -111,18 +119,28 @@ export function Marketplace() {
     }
   }, [buySuccess, step])
 
-  const handleBuy = (tokenId: bigint, price: bigint) => {
+  const handleBuy = (tokenId: bigint, price: bigint, paymentToken: string) => {
     if (!isConnected) return
     setBuyingTokenId(tokenId)
     setStep('buying')
-    // Marketplace accepts native MON, not $TRIP tokens
-    buy({
-      address: contracts.tripMarketplace,
-      abi: TripMarketplaceABI,
-      functionName: 'buyPill',
-      args: [tokenId],
-      value: price,
-    })
+    if (paymentToken === ZERO_ADDR) {
+      // Native MON payment
+      buy({
+        address: contracts.tripMarketplace,
+        abi: TripMarketplaceABI,
+        functionName: 'buyPill',
+        args: [tokenId],
+        value: price,
+      })
+    } else {
+      // ERC-20 ($TRIP) payment — user must have approved marketplace first
+      buy({
+        address: contracts.tripMarketplace,
+        abi: TripMarketplaceABI,
+        functionName: 'buyPill',
+        args: [tokenId],
+      })
+    }
   }
 
   if (listings.length === 0) {
@@ -180,7 +198,7 @@ export function Marketplace() {
               <div className="flex justify-between items-center mb-3">
                 <span className="text-neutral-500 font-terminal text-xs">price:</span>
                 <span className="text-green-400 font-terminal text-lg">
-                  {formatEther(listing.price)} MON
+                  {formatEther(listing.price)} {listing.paymentToken === ZERO_ADDR ? 'MON' : '$TRIP'}
                 </span>
               </div>
 
@@ -194,7 +212,7 @@ export function Marketplace() {
                   </button>
                 ) : (
                   <button
-                    onClick={() => handleBuy(listing.tokenId, listing.price)}
+                    onClick={() => handleBuy(listing.tokenId, listing.price, listing.paymentToken)}
                     disabled={isProcessing}
                     className="w-full px-4 py-2 border border-green-500/50 rounded text-green-400 hover:bg-green-500/10 transition-all duration-300 font-terminal text-sm disabled:opacity-50"
                   >
