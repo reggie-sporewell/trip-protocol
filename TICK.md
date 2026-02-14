@@ -2,7 +2,7 @@
 project: trip-protocol
 schema_version: "1.0"
 created: Sat Feb 14 2026 06:45:24 GMT+0000 (Coordinated Universal Time)
-updated: 2026-02-14T09:00:48.005Z
+updated: 2026-02-14T09:00:48.326Z
 default_workflow: [backlog, todo, in_progress, review, done]
 id_prefix: TASK
 next_id: 25
@@ -12,7 +12,7 @@ next_id: 25
 
 | Agent | Type | Role | Status | Working On | Last Active | Trust Level |
 |-------|------|------|--------|------------|-------------|-------------|
-| @reggie | bot | engineer, coordinator | idle | - | 2026-02-14T09:00:48.005Z | trusted |
+| @reggie | bot | engineer, coordinator | idle | - | 2026-02-14T09:00:48.326Z | trusted |
 
 ---
 
@@ -489,19 +489,24 @@ history:
 
 ```yaml
 id: TASK-019
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-14T08:17:39.710Z
-updated_at: 2026-02-14T08:17:39.710Z
+updated_at: 2026-02-14T09:00:48.326Z
 tags:
   - web
 history:
   - ts: 2026-02-14T08:17:39.710Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-14T09:00:48.326Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-020 · T12.5: Substance info cards - 6 base types with tier/potency/theme
