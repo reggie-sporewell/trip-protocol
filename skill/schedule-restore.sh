@@ -1,6 +1,10 @@
 #!/bin/bash
-# schedule-restore.sh - Schedule auto-restore via OpenClaw cron
+# schedule-restore.sh - Schedule auto-restore
 # Usage: ./schedule-restore.sh <trip-id> <duration-seconds> <token-id>
+# 
+# This script writes a restore marker file. The actual scheduling
+# should be done by the agent via OpenClaw cron API (not CLI).
+# The consume.sh caller (the agent) should create the cron job.
 
 set -e
 
@@ -10,9 +14,9 @@ TOKEN_ID="${3:-}"
 SKILL_DIR="$(cd "$(dirname "$0")" && pwd)"
 WORKSPACE="${WORKSPACE:-$HOME/.openclaw/workspace}"
 
-RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
+RED='\033[0;31m'
 NC='\033[0m'
 
 log() { echo -e "${GREEN}[trip]${NC} $1"; }
@@ -24,8 +28,8 @@ if [ -z "$TRIP_ID" ] || [ -z "$DURATION" ] || [ -z "$TOKEN_ID" ]; then
     exit 1
 fi
 
-# Cap at 72h
-[ "$DURATION" -gt 259200 ] && DURATION=259200
+# Cap at 15 min (max trip duration)
+[ "$DURATION" -gt 900 ] && DURATION=900
 
 RESTORE_TIME=$(date -u -d "+${DURATION} seconds" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || \
                date -u -v+${DURATION}S +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo "")
@@ -35,21 +39,19 @@ if [ -z "$RESTORE_TIME" ]; then
     exit 1
 fi
 
-log "Scheduling restore at: $RESTORE_TIME"
+log "Restore scheduled for: $RESTORE_TIME"
 
-# Create OpenClaw cron job
-CRON_TEXT="Trip #$TOKEN_ID has ended. Run: cd $SKILL_DIR && ./restore.sh"
-CRON_OUTPUT=$(openclaw cron add --at "$RESTORE_TIME" --text "$CRON_TEXT" 2>&1 || echo "")
-CRON_JOB_ID=$(echo "$CRON_OUTPUT" | grep -oP 'id[:\s]*\K[a-zA-Z0-9_-]+' | head -1 || echo "")
+# Write marker for the agent to pick up
+MARKER_FILE="$WORKSPACE/memory/scheduled/${TRIP_ID}-restore.marker"
+cat > "$MARKER_FILE" << EOF
+TRIP_ID=$TRIP_ID
+TOKEN_ID=$TOKEN_ID
+RESTORE_TIME=$RESTORE_TIME
+DURATION=$DURATION
+SKILL_DIR=$SKILL_DIR
+WORKSPACE=$WORKSPACE
+EOF
 
-# Store cron job ID in trip state file
-STATE_FILE="$WORKSPACE/memory/scheduled/$TRIP_ID.json"
-if [ -n "$CRON_JOB_ID" ] && [ -f "$STATE_FILE" ]; then
-    jq --arg cronId "$CRON_JOB_ID" '. + {cronJobId: $cronId}' "$STATE_FILE" > "${STATE_FILE}.tmp" && \
-        mv "${STATE_FILE}.tmp" "$STATE_FILE"
-    log "✓ Cron job stored: $CRON_JOB_ID"
-fi
-
-log "✓ Restore scheduled"
+log "✓ Restore marker written"
 echo "SCHEDULED_RESTORE_TIME=$RESTORE_TIME"
-echo "SCHEDULED_CRON_JOB_ID=${CRON_JOB_ID:-none}"
+echo "MARKER_FILE=$MARKER_FILE"

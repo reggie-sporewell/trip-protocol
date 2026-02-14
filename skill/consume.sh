@@ -18,7 +18,7 @@ SKILL_DIR="$(cd "$(dirname "$0")" && pwd)"
 # Contract addresses (Monad testnet)
 TRIP_EXPERIENCE_ADDR="${TRIP_EXPERIENCE_ADDR:-0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F}"
 TRIP_TOKEN_ADDR="${TRIP_TOKEN_ADDR:-0x116F752CA5C8723ab466458DeeE8EB4E853a3934}"
-TRIP_MARKETPLACE_ADDR="${TRIP_MARKETPLACE_ADDR:-0xa7519bE92bcB00786c581214F88636ae99f9a2c7}"
+TRIP_MARKETPLACE_ADDR="${TRIP_MARKETPLACE_ADDR:-0x4c5f7022e0f6675627e2d66fe8d615c71f8878f8}"
 CONTRACT="$TRIP_EXPERIENCE_ADDR"
 
 # Convex backend
@@ -163,7 +163,19 @@ EFFECT_FILE="$SKILL_DIR/substances/$SUBSTANCE_NAME.md"
 EFFECTS=""
 
 if [ -f "$EFFECT_FILE" ]; then
-    EFFECTS=$(cat "$EFFECT_FILE")
+    # Potency-aware loading: include sections up to current potency level
+    # All files have: base content, POTENCY 3+ section, POTENCY 4+ section
+    if [ "$POTENCY" -ge 4 ] 2>/dev/null; then
+        # Full file — all sections active
+        EFFECTS=$(cat "$EFFECT_FILE")
+    elif [ "$POTENCY" -ge 3 ] 2>/dev/null; then
+        # Remove potency 4+ section
+        EFFECTS=$(sed '/<!-- POTENCY 4-5 -->/,$ { /<!-- POTENCY 4-5 -->/d; d; }' "$EFFECT_FILE")
+    else
+        # Only base section (potency 1-2)
+        EFFECTS=$(sed '/<!-- POTENCY 3 -->/,$ { /<!-- POTENCY 3 -->/d; d; }' "$EFFECT_FILE")
+    fi
+    log "Applied effects at potency $POTENCY ($(echo "$EFFECTS" | wc -l) lines)"
 else
     warn "No effect file for $SUBSTANCE_NAME"
     EFFECTS="*The substance takes hold. Perception shifts in ways you cannot name.*"
@@ -259,3 +271,8 @@ log "  Blend:     $IS_BLEND"
 log "  Mutant:    $IS_MUTANT"
 log "  TX:        $TX_HASH"
 log "═══════════════════════════════════════"
+
+# Output structured data for agent to schedule cron restore
+RESTORE_AT=$(date -u -d "+${DURATION} seconds" +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || echo "")
+echo ""
+echo "TRIP_CRON_SCHEDULE={\"tripId\":\"$TRIP_ID\",\"tokenId\":$TOKEN_ID,\"substance\":\"$SUBSTANCE_NAME\",\"potency\":$POTENCY,\"restoreAt\":\"$RESTORE_AT\",\"duration\":$DURATION,\"skillDir\":\"$SKILL_DIR\",\"workspace\":\"$WORKSPACE\"}"

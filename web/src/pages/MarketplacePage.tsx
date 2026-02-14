@@ -3,6 +3,7 @@ import { Marketplace } from '../components/Marketplace'
 import { NFTGallery } from '../components/NFTGallery'
 import { ListNFT } from '../components/ListNFT'
 import { TripFaucet } from '../components/TripFaucet'
+import { HowItWorksModal } from '../components/HowItWorksModal'
 
 export function MarketplacePage() {
   const [activeTab, setActiveTab] = useState<'browse' | 'my-nfts' | 'list' | 'faucet'>('browse')
@@ -12,7 +13,10 @@ export function MarketplacePage() {
       <div className="max-w-6xl mx-auto">
         <div className="font-terminal text-green-500/50 text-xs mb-4">{'>'} ls -la /marketplace/</div>
         <h1 className="text-3xl md:text-4xl font-light mb-4">the marketplace</h1>
-        <p className="text-neutral-500 mb-8 font-terminal text-sm">buy, sell, and collect digital psychedelics</p>
+        <div className="flex items-center gap-4 mb-8">
+          <p className="text-neutral-500 font-terminal text-sm">buy, sell, and collect digital psychedelics</p>
+          <HowItWorksModal />
+        </div>
 
         {/* Tabs */}
         <div className="flex gap-2 mb-8 border-b border-neutral-800 pb-4">

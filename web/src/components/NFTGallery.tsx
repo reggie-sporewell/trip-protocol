@@ -72,14 +72,24 @@ export function NFTGallery({ onSelectNFT, selectedTokenId }: Props) {
       const nfts: NFT[] = metadataResults
         .map((result, index) => {
           if (!result.result) return null
-          const data = result.result as [string, string, number, bigint, boolean, bigint]
+          const data = result.result as {
+            substanceHash: string
+            crypticName: string
+            tier: number
+            potencyMin: number
+            potencyMax: number
+            actualPotency: number
+            isBlend: boolean
+            isMutant: boolean
+            consumed: boolean
+          }
           return {
             tokenId: ownedTokenIds[index],
-            name: data[0],
-            substanceType: data[1],
-            potency: data[2],
-            duration: Number(data[3]),
-            consumed: data[4],
+            name: data.crypticName || `Pill #${ownedTokenIds[index]}`,
+            substanceType: `Tier ${Number(data.tier) || 0}`,
+            potency: Number(data.potencyMax) || 0,
+            duration: Number(data.tier) || 0,
+            consumed: Boolean(data.consumed),
           }
         })
         .filter((nft): nft is NFT => nft !== null)
@@ -146,10 +156,10 @@ export function NFTGallery({ onSelectNFT, selectedTokenId }: Props) {
             
             <div className="flex justify-between font-terminal text-xs">
               <span className="text-neutral-600">
-                potency: <span className="text-green-400">{'█'.repeat(nft.potency)}{'░'.repeat(5-nft.potency)}</span>
+                potency: <span className="text-green-400">{'█'.repeat(Math.min(5, nft.potency))}{'░'.repeat(5-Math.min(5, nft.potency))}</span>
               </span>
               <span className="text-neutral-600">
-                duration: <span className="text-violet-400">{Math.floor(nft.duration / 3600)}h</span>
+                tier: <span className="text-violet-400">{'◆'.repeat(Math.min(5, Math.max(1, nft.duration)))}{'◇'.repeat(5-Math.min(5, Math.max(1, nft.duration)))}</span>
               </span>
             </div>
           </div>

@@ -16,7 +16,7 @@ contract TripV2Test is Test {
     function setUp() public {
         xp = new TripExperience(address(this));
         token = new TripToken(address(this));
-        market = new TripMarketplace(address(xp));
+        market = new TripMarketplace(address(xp), address(token));
         xp.setMinter(address(market), true);
     }
 
