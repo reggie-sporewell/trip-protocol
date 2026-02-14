@@ -16,7 +16,7 @@ contract DeployV2 is Script {
         TripToken token = new TripToken(msg.sender);
         console.log("TripToken:", address(token));
 
-        TripMarketplace market = new TripMarketplace(address(xp));
+        TripMarketplace market = new TripMarketplace(address(xp), address(token));
         console.log("TripMarketplace:", address(market));
 
         // Grant marketplace minter role

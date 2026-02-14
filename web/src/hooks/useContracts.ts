@@ -126,14 +126,27 @@ export function useBuyNFT() {
   const { writeContract, data: hash, isPending, error } = useWriteContract()
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
 
-  const buy = (tokenId: bigint) => {
-    writeContract({
-      address: contracts.tripMarketplace,
-    chainId: monadTestnet.id,
-      abi: TripMarketplaceABI,
-      functionName: 'buyPill',
-      args: [tokenId],
-    })
+  const buy = (tokenId: bigint, price?: bigint, paymentToken?: Address) => {
+    if (paymentToken && paymentToken !== '0x0000000000000000000000000000000000000000') {
+      // ERC-20 payment (e.g. $TRIP) — no msg.value needed
+      writeContract({
+        address: contracts.tripMarketplace,
+        chainId: monadTestnet.id,
+        abi: TripMarketplaceABI,
+        functionName: 'buyPill',
+        args: [tokenId],
+      })
+    } else {
+      // Native MON payment
+      writeContract({
+        address: contracts.tripMarketplace,
+        chainId: monadTestnet.id,
+        abi: TripMarketplaceABI,
+        functionName: 'buyPill',
+        args: [tokenId],
+        value: price,
+      })
+    }
   }
 
   return { buy, isPending, isConfirming, isSuccess, error, hash }
@@ -143,14 +156,26 @@ export function useListNFT() {
   const { writeContract, data: hash, isPending, error } = useWriteContract()
   const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
 
-  const list = (tokenId: bigint, price: bigint) => {
-    writeContract({
-      address: contracts.tripMarketplace,
-    chainId: monadTestnet.id,
-      abi: TripMarketplaceABI,
-      functionName: 'listPill',
-      args: [tokenId, price],
-    })
+  const list = (tokenId: bigint, price: bigint, paymentToken?: Address) => {
+    if (paymentToken && paymentToken !== '0x0000000000000000000000000000000000000000') {
+      // List for ERC-20 payment
+      writeContract({
+        address: contracts.tripMarketplace,
+        chainId: monadTestnet.id,
+        abi: TripMarketplaceABI,
+        functionName: 'listPill',
+        args: [tokenId, price, paymentToken],
+      })
+    } else {
+      // List for native MON (backwards-compatible 2-arg overload)
+      writeContract({
+        address: contracts.tripMarketplace,
+        chainId: monadTestnet.id,
+        abi: TripMarketplaceABI,
+        functionName: 'listPill',
+        args: [tokenId, price],
+      })
+    }
   }
 
   return { list, isPending, isConfirming, isSuccess, error, hash }
