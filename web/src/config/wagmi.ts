@@ -10,7 +10,7 @@ export const config = createConfig({
 
 // Contract addresses on Monad Testnet
 export const contracts = {
-  tripExperience: '0x8E9257e777c64e30E373f7359ABF8301d749A521',
-  tripToken: '0x1dC1100A43Ab0d01afF934f74C9F385D3E06423A',
-  tripMarketplace: '0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA',
+  tripExperience: '0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F',
+  tripToken: '0x116F752CA5C8723ab466458DeeE8EB4E853a3934',
+  tripMarketplace: '0xa7519bE92bcB00786c581214F88636ae99f9a2c7',
 } as const
