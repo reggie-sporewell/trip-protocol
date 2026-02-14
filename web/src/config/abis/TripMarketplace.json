@@ -3,49 +3,29 @@
     "type": "constructor",
     "inputs": [
       {
-        "name": "_tripExperience",
+        "name": "_nft",
         "type": "address",
         "internalType": "address"
-      },
-      {
-        "name": "_tripToken",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_initialOwner",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_feeRecipient",
-        "type": "address",
-        "internalType": "address"
-      },
-      {
-        "name": "_protocolFeeBps",
-        "type": "uint256",
-        "internalType": "uint256"
       }
     ],
     "stateMutability": "nonpayable"
   },
   {
     "type": "function",
-    "name": "MAX_FEE_BPS",
-    "inputs": [],
-    "outputs": [
+    "name": "buyPill",
+    "inputs": [
       {
-        "name": "",
+        "name": "tokenId",
         "type": "uint256",
         "internalType": "uint256"
       }
     ],
-    "stateMutability": "view"
+    "outputs": [],
+    "stateMutability": "payable"
   },
   {
     "type": "function",
-    "name": "buy",
+    "name": "delistPill",
     "inputs": [
       {
         "name": "tokenId",
@@ -58,7 +38,7 @@
   },
   {
     "type": "function",
-    "name": "delist",
+    "name": "forceDelistPill",
     "inputs": [
       {
         "name": "tokenId",
@@ -71,80 +51,7 @@
   },
   {
     "type": "function",
-    "name": "feeRecipient",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "getListing",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "tuple",
-        "internalType": "struct TripMarketplace.Listing",
-        "components": [
-          {
-            "name": "seller",
-            "type": "address",
-            "internalType": "address"
-          },
-          {
-            "name": "tokenId",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "price",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "active",
-            "type": "bool",
-            "internalType": "bool"
-          }
-        ]
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "isListed",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "list",
+    "name": "listPill",
     "inputs": [
       {
         "name": "tokenId",
@@ -162,6 +69,43 @@
   },
   {
     "type": "function",
+    "name": "listings",
+    "inputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "seller",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "price",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "nft",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IERC721"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "owner",
     "inputs": [],
     "outputs": [
@@ -175,13 +119,20 @@
   },
   {
     "type": "function",
-    "name": "protocolFeeBps",
+    "name": "pause",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "paused",
     "inputs": [],
     "outputs": [
       {
         "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
     "stateMutability": "view"
@@ -190,32 +141,6 @@
     "type": "function",
     "name": "renounceOwnership",
     "inputs": [],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setFeeRecipient",
-    "inputs": [
-      {
-        "name": "newRecipient",
-        "type": "address",
-        "internalType": "address"
-      }
-    ],
-    "outputs": [],
-    "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "setProtocolFee",
-    "inputs": [
-      {
-        "name": "newFeeBps",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
     "outputs": [],
     "stateMutability": "nonpayable"
   },
@@ -234,29 +159,17 @@
   },
   {
     "type": "function",
-    "name": "tripExperience",
+    "name": "unpause",
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "contract IERC721"
-      }
-    ],
-    "stateMutability": "view"
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "function",
-    "name": "tripToken",
+    "name": "withdraw",
     "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "contract IERC20"
-      }
-    ],
-    "stateMutability": "view"
+    "outputs": [],
+    "stateMutability": "nonpayable"
   },
   {
     "type": "event",
@@ -267,31 +180,6 @@
         "type": "uint256",
         "indexed": true,
         "internalType": "uint256"
-      },
-      {
-        "name": "seller",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "FeeRecipientUpdated",
-    "inputs": [
-      {
-        "name": "oldRecipient",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
-      },
-      {
-        "name": "newRecipient",
-        "type": "address",
-        "indexed": false,
-        "internalType": "address"
       }
     ],
     "anonymous": false
@@ -342,25 +230,6 @@
   },
   {
     "type": "event",
-    "name": "ProtocolFeeUpdated",
-    "inputs": [
-      {
-        "name": "oldFee",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "newFee",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
     "name": "Sold",
     "inputs": [
       {
@@ -386,40 +255,9 @@
         "type": "uint256",
         "indexed": false,
         "internalType": "uint256"
-      },
-      {
-        "name": "fee",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
       }
     ],
     "anonymous": false
-  },
-  {
-    "type": "error",
-    "name": "AlreadyListed",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "CannotBuyOwnListing",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "FeeTooHigh",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "ListingNotActive",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "NotTokenOwner",
-    "inputs": []
   },
   {
     "type": "error",
@@ -442,15 +280,5 @@
         "internalType": "address"
       }
     ]
-  },
-  {
-    "type": "error",
-    "name": "PriceCannotBeZero",
-    "inputs": []
-  },
-  {
-    "type": "error",
-    "name": "ReentrancyGuardReentrantCall",
-    "inputs": []
   }
 ]

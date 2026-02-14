@@ -55,29 +55,20 @@
         "name": "tokenId",
         "type": "uint256",
         "internalType": "uint256"
+      },
+      {
+        "name": "substanceType",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "blendType",
+        "type": "string",
+        "internalType": "string"
       }
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
-  },
-  {
-    "type": "function",
-    "name": "consumedAt",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -115,34 +106,49 @@
         "internalType": "struct TripExperience.Substance",
         "components": [
           {
-            "name": "name",
+            "name": "substanceHash",
+            "type": "bytes32",
+            "internalType": "bytes32"
+          },
+          {
+            "name": "crypticName",
             "type": "string",
             "internalType": "string"
           },
           {
-            "name": "substanceType",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "potency",
+            "name": "tier",
             "type": "uint8",
             "internalType": "uint8"
           },
           {
-            "name": "duration",
-            "type": "uint256",
-            "internalType": "uint256"
+            "name": "potencyMin",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "potencyMax",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "actualPotency",
+            "type": "uint8",
+            "internalType": "uint8"
+          },
+          {
+            "name": "isBlend",
+            "type": "bool",
+            "internalType": "bool"
+          },
+          {
+            "name": "isMutant",
+            "type": "bool",
+            "internalType": "bool"
           },
           {
             "name": "consumed",
             "type": "bool",
             "internalType": "bool"
-          },
-          {
-            "name": "consumedAt",
-            "type": "uint256",
-            "internalType": "uint256"
           }
         ]
       }
@@ -175,26 +181,7 @@
   },
   {
     "type": "function",
-    "name": "isConsumed",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bool",
-        "internalType": "bool"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "mint",
+    "name": "mintPill",
     "inputs": [
       {
         "name": "to",
@@ -202,29 +189,44 @@
         "internalType": "address"
       },
       {
-        "name": "uri",
+        "name": "substanceHash",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      },
+      {
+        "name": "crypticName",
         "type": "string",
         "internalType": "string"
       },
       {
-        "name": "name",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "substanceType",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "potency",
+        "name": "tier",
         "type": "uint8",
         "internalType": "uint8"
       },
       {
-        "name": "duration",
-        "type": "uint256",
-        "internalType": "uint256"
+        "name": "potencyMin",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "potencyMax",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "actualPotency",
+        "type": "uint8",
+        "internalType": "uint8"
+      },
+      {
+        "name": "isBlend",
+        "type": "bool",
+        "internalType": "bool"
+      },
+      {
+        "name": "isMutant",
+        "type": "bool",
+        "internalType": "bool"
       }
     ],
     "outputs": [
@@ -235,6 +237,25 @@
       }
     ],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "minters",
+    "inputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "address"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "function",
@@ -350,6 +371,24 @@
       },
       {
         "name": "approved",
+        "type": "bool",
+        "internalType": "bool"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "setMinter",
+    "inputs": [
+      {
+        "name": "minter",
+        "type": "address",
+        "internalType": "address"
+      },
+      {
+        "name": "allowed",
         "type": "bool",
         "internalType": "bool"
       }
@@ -509,63 +548,6 @@
   },
   {
     "type": "event",
-    "name": "BatchMetadataUpdate",
-    "inputs": [
-      {
-        "name": "_fromTokenId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      },
-      {
-        "name": "_toTokenId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "Consumed",
-    "inputs": [
-      {
-        "name": "tokenId",
-        "type": "uint256",
-        "indexed": true,
-        "internalType": "uint256"
-      },
-      {
-        "name": "consumer",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "timestamp",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
-    "name": "MetadataUpdate",
-    "inputs": [
-      {
-        "name": "_tokenId",
-        "type": "uint256",
-        "indexed": false,
-        "internalType": "uint256"
-      }
-    ],
-    "anonymous": false
-  },
-  {
-    "type": "event",
     "name": "OwnershipTransferred",
     "inputs": [
       {
@@ -585,7 +567,7 @@
   },
   {
     "type": "event",
-    "name": "SubstanceMinted",
+    "name": "SubstanceRevealed",
     "inputs": [
       {
         "name": "tokenId",
@@ -594,13 +576,7 @@
         "internalType": "uint256"
       },
       {
-        "name": "to",
-        "type": "address",
-        "indexed": true,
-        "internalType": "address"
-      },
-      {
-        "name": "name",
+        "name": "substanceType",
         "type": "string",
         "indexed": false,
         "internalType": "string"
@@ -612,10 +588,22 @@
         "internalType": "uint8"
       },
       {
-        "name": "duration",
-        "type": "uint256",
+        "name": "isBlend",
+        "type": "bool",
         "indexed": false,
-        "internalType": "uint256"
+        "internalType": "bool"
+      },
+      {
+        "name": "blendType",
+        "type": "string",
+        "indexed": false,
+        "internalType": "string"
+      },
+      {
+        "name": "isMutant",
+        "type": "bool",
+        "indexed": false,
+        "internalType": "bool"
       }
     ],
     "anonymous": false
