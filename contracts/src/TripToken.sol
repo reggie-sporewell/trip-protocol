@@ -19,4 +19,14 @@ contract TripToken is ERC20, Ownable {
     function faucet(address to, uint256 amount) external onlyOwner {
         _mint(to, amount);
     }
+
+    /// @notice Public testnet faucet — anyone can claim 1000 $TRIP
+    uint256 public constant FAUCET_AMOUNT = 1000 * 10 ** 18;
+    mapping(address => uint256) public lastClaim;
+
+    function claim() external {
+        require(block.timestamp - lastClaim[msg.sender] >= 1 hours, "Wait 1h between claims");
+        lastClaim[msg.sender] = block.timestamp;
+        _mint(msg.sender, FAUCET_AMOUNT);
+    }
 }

@@ -27,7 +27,7 @@ export function useTripFaucet() {
       address: contracts.tripToken,
     chainId: monadTestnet.id,
       abi: TripTokenABI,
-      functionName: 'faucet',
+      functionName: 'claim',
     })
   }
 
