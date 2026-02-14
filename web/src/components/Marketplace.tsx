@@ -84,18 +84,30 @@ export function Marketplace() {
       const newListings: Listing[] = metadataResults
         .map((result, index) => {
           if (!result.result) return null
-          // getSubstance returns: [substanceHash, crypticName, tier, potencyMin, potencyMax, actualPotency, isBlend, isMutant, consumed]
-          const data = result.result as [string, string, number, number, number, number, boolean, boolean, boolean]
+          // getSubstance returns a struct/tuple with named fields
+          const data = result.result as {
+            substanceHash: string
+            crypticName: string
+            tier: number
+            potencyMin: number
+            potencyMax: number
+            actualPotency: number
+            isBlend: boolean
+            isMutant: boolean
+            consumed: boolean
+          }
           const listingInfo = activeListingIds[index]
+          const tier = Number(data.tier) || 0
+          const potency = Number(data.potencyMax) || 0
           return {
             tokenId: listingInfo.tokenId,
             seller: listingInfo.seller,
             price: listingInfo.price,
             paymentToken: listingInfo.paymentToken,
-            name: data[1], // crypticName
-            substanceType: `Tier ${data[2]}`,
-            potency: data[4], // potencyMax (actualPotency hidden until consumed)
-            duration: data[2], // tier as visual indicator
+            name: data.crypticName || `Pill #${listingInfo.tokenId}`,
+            substanceType: `Tier ${tier}`,
+            potency: potency,
+            duration: tier,
           }
         })
         .filter((listing): listing is Listing => listing !== null)
