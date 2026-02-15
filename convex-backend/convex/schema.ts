@@ -19,6 +19,8 @@ export default defineSchema({
     soulDiff: v.optional(v.string()),
     shared: v.boolean(),
     crypticName: v.string(),
+    txHash: v.optional(v.string()),
+    ownerAddress: v.optional(v.string()),
   })
     .index("by_substance", ["substance"])
     .index("by_agent", ["agentId"])

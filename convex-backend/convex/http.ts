@@ -17,7 +17,7 @@ function corsHeaders(contentType = "application/json"): Record<string, string> {
   return {
     "Content-Type": contentType,
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, x-trip-key",
   };
 }
@@ -83,6 +83,25 @@ http.route({
     const limit = limitStr ? parseInt(limitStr, 10) : undefined;
     const results = await ctx.runQuery(internal.journals.list, { substance, agent, limit });
     return json(results);
+  }),
+});
+
+// ─── DELETE /api/journals ────────────────────────────────────────
+
+http.route({
+  path: "/api/journals",
+  method: "DELETE",
+  handler: httpAction(async (ctx, request) => {
+    if (!verifyKey(request)) return unauthorized();
+    try {
+      const body = await request.json();
+      const { id } = body as { id: string };
+      if (!id) return json({ error: "id required" }, 400);
+      await ctx.runMutation(internal.journals.remove, { id: id as any });
+      return json({ success: true });
+    } catch (e: any) {
+      return json({ error: e.message }, 400);
+    }
   }),
 });
 
