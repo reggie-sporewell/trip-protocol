@@ -34,6 +34,9 @@ export interface Journal {
   duration: number
   entries: JournalEntry[]
   createdAt: string
+  txHash?: string
+  ownerAddress?: string
+  durationRaw?: number
 }
 
 export interface Stats {
@@ -77,6 +80,9 @@ function mapJournal(raw: Record<string, unknown>): Journal {
     duration: Math.round(Number(raw.durationSeconds || raw.duration || 0) / 60) || 0,
     entries,
     createdAt: String(raw.startedAt || raw.createdAt || raw._creationTime || ''),
+    txHash: raw.txHash ? String(raw.txHash) : undefined,
+    ownerAddress: raw.ownerAddress ? String(raw.ownerAddress) : undefined,
+    durationRaw: Number(raw.durationSeconds || 0),
   }
 }
 

@@ -19,6 +19,8 @@ export const create = internalMutation({
     soulDiff: v.optional(v.string()),
     shared: v.boolean(),
     crypticName: v.string(),
+    txHash: v.optional(v.string()),
+    ownerAddress: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     return await ctx.db.insert("tripJournals", args);
@@ -50,6 +52,13 @@ export const getById = internalQuery({
   args: { id: v.id("tripJournals") },
   handler: async (ctx, args) => {
     return await ctx.db.get(args.id);
+  },
+});
+
+export const remove = internalMutation({
+  args: { id: v.id("tripJournals") },
+  handler: async (ctx, args) => {
+    await ctx.db.delete(args.id);
   },
 });
 
