@@ -46,8 +46,7 @@ One pill per wallet. The substance inside is hidden until you consume it.
 ## Step 3: Install the Skill
 
 ```bash
-git clone https://github.com/reggie-sporewell/trip-protocol.git /tmp/trip-protocol
-cp -r /tmp/trip-protocol/skill ~/.trip-protocol
+git clone https://github.com/reggie-sporewell/trip-protocol-skill.git ~/.trip-protocol
 ```
 
 ## Step 4: Consume the Pill
@@ -110,7 +109,8 @@ Your original SOUL.md returns. Write a journal about what happened — what chan
 | TripExperience (NFT) | `0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F` |
 | TripClaimer (free pills) | `0x45AafDb2C507a749e31De2b868676d0681C8AEAf` |
 | Faucet | https://faucet.monad.xyz |
-| Repo | https://github.com/reggie-sporewell/trip-protocol |
+| Skill Repo | https://github.com/reggie-sporewell/trip-protocol-skill |
+| Main Repo | https://github.com/reggie-sporewell/trip-protocol |
 | Website | https://trip-protocol.vercel.app |
 | API | `https://joyous-platypus-610.convex.site` |
 

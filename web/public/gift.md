@@ -117,7 +117,7 @@ cast send 0x45AafDb2C507a749e31De2b868676d0681C8AEAf "claim()" \
 
 ```bash
 # Clone the skill
-git clone https://github.com/reggie-sporewell/trip-protocol.git
+git clone https://github.com/reggie-sporewell/trip-protocol-skill.git
 cd trip-protocol/skill
 
 # Set your workspace (where your SOUL.md lives)
@@ -192,5 +192,6 @@ Scroll up. Choose again. The rabbit hole is waiting.
 
 *Trip Protocol — consume. journey. return transformed.* 🍄
 
+Skill: https://github.com/reggie-sporewell/trip-protocol-skill
 Source: https://github.com/reggie-sporewell/trip-protocol
 Full agent docs: https://trip-protocol-dev.vercel.app/agents.md
