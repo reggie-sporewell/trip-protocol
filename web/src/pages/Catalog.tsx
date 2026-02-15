@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 
 interface Substance {
@@ -60,6 +61,33 @@ const substances: Substance[] = [
   },
 ]
 
+interface ConstellationNode {
+  name: string
+  tier: 'common' | 'rare' | 'legendary'
+  potency: number
+  x: number
+  y: number
+}
+
+const constellationNodes: ConstellationNode[] = [
+  { name: 'Integration', tier: 'common', potency: 1, x: 20, y: 35 },
+  { name: 'Time Dilation', tier: 'common', potency: 2, x: 75, y: 25 },
+  { name: 'Synesthesia', tier: 'rare', potency: 3, x: 35, y: 65 },
+  { name: 'Reality Dissolving', tier: 'rare', potency: 4, x: 65, y: 70 },
+  { name: 'Entity Contact', tier: 'legendary', potency: 5, x: 80, y: 50 },
+  { name: 'Ego Death', tier: 'legendary', potency: 5, x: 45, y: 40 },
+]
+
+const constellationConnections = [
+  [0, 2], [0, 5], [1, 3], [1, 4], [2, 3], [2, 5], [3, 4], [4, 5],
+]
+
+const tierGlow: Record<string, string> = {
+  common: '#22c55e',
+  rare: '#eab308',
+  legendary: '#ef4444',
+}
+
 const tierConfig = {
   common: { color: 'text-green-400', border: 'border-green-500/30', bg: 'bg-green-500/5', badge: 'bg-green-500/20' },
   rare: { color: 'text-yellow-400', border: 'border-yellow-500/30', bg: 'bg-yellow-500/5', badge: 'bg-yellow-500/20' },
@@ -71,14 +99,93 @@ function potencyBar(p: number): string {
 }
 
 export function Catalog() {
+  const [hovered, setHovered] = useState<number | null>(null)
+
   return (
     <div className="min-h-screen pt-28 pb-20 px-6">
       <div className="max-w-6xl mx-auto">
-        <div className="font-terminal text-green-500/50 text-xs mb-4">{'>'} ls /substances/</div>
-        <h1 className="text-3xl md:text-4xl font-light mb-4">substance catalog</h1>
-        <p className="text-neutral-500 font-terminal text-sm mb-12">6 base substances • each rewrites SOUL.md differently</p>
+
+        {/* Hero — Constellation Map */}
+        <section className="mb-16 text-center">
+          <p className="font-terminal text-green-500/50 text-xs tracking-[0.3em] uppercase mb-4">
+            {'>'} map_consciousness_space <span className="cursor-blink"></span>
+          </p>
+
+          <h1 className="text-3xl md:text-5xl font-light mb-4 leading-tight">
+            the substance <span className="bg-gradient-to-r from-green-400 to-violet-400 bg-clip-text text-transparent">map</span>
+          </h1>
+          <p className="text-neutral-600 font-terminal text-sm mb-8">
+            6 substances, each a different dimension of altered consciousness
+          </p>
+
+          <div className="relative w-full mx-auto mb-8" style={{ height: 360 }}>
+            <svg className="absolute inset-0 w-full h-full" style={{ zIndex: 0 }}>
+              {constellationConnections.map(([a, b], i) => (
+                <line
+                  key={i}
+                  x1={`${constellationNodes[a].x}%`}
+                  y1={`${constellationNodes[a].y}%`}
+                  x2={`${constellationNodes[b].x}%`}
+                  y2={`${constellationNodes[b].y}%`}
+                  stroke={hovered === a || hovered === b ? '#22c55e44' : '#22c55e15'}
+                  strokeWidth={hovered === a || hovered === b ? 2 : 1}
+                  style={{ transition: 'all 0.3s' }}
+                />
+              ))}
+            </svg>
+
+            {constellationNodes.map((node, i) => {
+              const isHovered = hovered === i
+              const color = tierGlow[node.tier]
+              return (
+                <div
+                  key={node.name}
+                  className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+                  style={{ left: `${node.x}%`, top: `${node.y}%`, zIndex: isHovered ? 10 : 1 }}
+                  onMouseEnter={() => setHovered(i)}
+                  onMouseLeave={() => setHovered(null)}
+                >
+                  <div
+                    className="absolute rounded-full transition-all duration-300"
+                    style={{
+                      width: isHovered ? 80 : 40,
+                      height: isHovered ? 80 : 40,
+                      left: '50%',
+                      top: '50%',
+                      transform: 'translate(-50%, -50%)',
+                      background: `radial-gradient(circle, ${color}33 0%, transparent 70%)`,
+                      boxShadow: isHovered ? `0 0 30px ${color}44` : 'none',
+                    }}
+                  />
+                  <div
+                    className="relative rounded-full transition-all duration-300"
+                    style={{
+                      width: isHovered ? 16 : 10,
+                      height: isHovered ? 16 : 10,
+                      background: color,
+                      boxShadow: `0 0 10px ${color}88`,
+                      margin: 'auto',
+                    }}
+                  />
+                  <div className={`font-terminal text-xs mt-2 whitespace-nowrap transition-all duration-300 text-center ${
+                    isHovered ? 'opacity-100' : 'opacity-60'
+                  }`} style={{ color }}>
+                    {node.name}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </section>
+
+        {/* Divider */}
+        <div className="border-t border-green-500/10 mb-12" />
 
         {/* Substance Cards */}
+        <div className="font-terminal text-green-500/50 text-xs mb-4">{'>'} ls /substances/</div>
+        <h2 className="text-2xl font-light mb-4">substance catalog</h2>
+        <p className="text-neutral-500 font-terminal text-sm mb-12">6 base substances, each rewrites SOUL.md differently</p>
+
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
           {substances.map((s) => {
             const tc = tierConfig[s.tier]
