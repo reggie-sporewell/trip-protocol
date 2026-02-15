@@ -125,16 +125,25 @@ function Home() {
     <>
       {/* Hero */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-16">
-        {/* Matrix rain background */}
-        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.07]">
-          <div className="font-terminal text-green-500 text-xs leading-none whitespace-pre select-none animate-matrix-rain"
-            style={{ transform: 'translateY(-50%)', lineHeight: '1.2' }}>
-            {Array.from({ length: 40 }, () =>
-              Array.from({ length: 80 }, () =>
-                'ア イ ウ エ オ カ キ ク ケ コ 0 1 .'[Math.floor(Math.random() * 14)]
-              ).join('')
-            ).join('\n')}
-          </div>
+        {/* Matrix rain columns */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.06]">
+          {Array.from({ length: 20 }, (_, col) => (
+            <div
+              key={col}
+              className="absolute top-0 font-terminal text-green-500 text-xs select-none animate-matrix-rain"
+              style={{
+                left: `${col * 5}%`,
+                animationDuration: `${15 + Math.random() * 15}s`,
+                animationDelay: `${-Math.random() * 20}s`,
+              }}
+            >
+              {Array.from({ length: 60 }, (_, r) => (
+                <div key={r} style={{ opacity: 0.3 + Math.random() * 0.7 }}>
+                  {'アイウエオカキクケコサシスセソタチツテト0123456789'[Math.floor(Math.random() * 30)]}
+                </div>
+              ))}
+            </div>
+          ))}
         </div>
 
         <div className="relative text-center max-w-4xl mx-auto w-full">
@@ -153,22 +162,49 @@ function Home() {
 `}
           </pre>
 
-          {/* The choice */}
-          <div className="flex items-center justify-center gap-8 md:gap-16 mb-10">
-            <Link to="/claim" className="group flex flex-col items-center gap-3 cursor-pointer">
-              <div className="w-16 h-24 md:w-20 md:h-28 rounded-full border border-red-500/40 bg-red-500/10 flex items-center justify-center group-hover:bg-red-500/20 group-hover:border-red-400 group-hover:shadow-[0_0_30px_rgba(239,68,68,0.3)] transition-all duration-500">
-                <span className="font-terminal text-red-400 text-lg md:text-xl group-hover:scale-110 transition-transform">🔴</span>
+          {/* The choice — red pill / blue pill */}
+          <div className="flex items-center justify-center gap-12 md:gap-20 mb-12">
+            <Link to="/claim" className="group flex flex-col items-center gap-4 cursor-pointer">
+              <div className="relative">
+                <div
+                  className="w-12 h-20 md:w-14 md:h-24 rounded-full transition-all duration-500 group-hover:scale-110"
+                  style={{
+                    background: 'linear-gradient(135deg, #ff6b6b 0%, #ee5a24 40%, #c0392b 100%)',
+                    boxShadow: '0 0 20px rgba(239, 68, 68, 0.2), inset 0 -4px 8px rgba(0,0,0,0.3), inset 0 4px 8px rgba(255,255,255,0.15)',
+                  }}
+                />
+                <div
+                  className="absolute top-[15%] left-[20%] w-[25%] h-[20%] rounded-full opacity-60"
+                  style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.5) 0%, transparent 70%)' }}
+                />
+                <div className="absolute inset-0 rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                  style={{ boxShadow: '0 0 40px rgba(239, 68, 68, 0.4), 0 0 80px rgba(239, 68, 68, 0.15)' }}
+                />
               </div>
-              <span className="font-terminal text-xs text-red-400/70 group-hover:text-red-400 transition-colors">wake up</span>
+              <span className="font-terminal text-xs text-red-400/80 group-hover:text-red-400 transition-colors tracking-wider">WAKE UP</span>
             </Link>
 
-            <div className="font-terminal text-neutral-600 text-xs">or</div>
+            <div className="flex flex-col items-center gap-1">
+              <div className="w-px h-8 bg-neutral-800"></div>
+              <span className="font-terminal text-neutral-700 text-[10px]">or</span>
+              <div className="w-px h-8 bg-neutral-800"></div>
+            </div>
 
-            <div className="group flex flex-col items-center gap-3 cursor-pointer opacity-50 hover:opacity-70 transition-opacity">
-              <div className="w-16 h-24 md:w-20 md:h-28 rounded-full border border-blue-500/30 bg-blue-500/5 flex items-center justify-center transition-all duration-500">
-                <span className="font-terminal text-blue-400/60 text-lg md:text-xl">🔵</span>
+            <div className="group flex flex-col items-center gap-4 cursor-default">
+              <div className="relative opacity-40 group-hover:opacity-50 transition-opacity">
+                <div
+                  className="w-12 h-20 md:w-14 md:h-24 rounded-full"
+                  style={{
+                    background: 'linear-gradient(135deg, #74b9ff 0%, #0984e3 40%, #2d3436 100%)',
+                    boxShadow: 'inset 0 -4px 8px rgba(0,0,0,0.3), inset 0 4px 8px rgba(255,255,255,0.1)',
+                  }}
+                />
+                <div
+                  className="absolute top-[15%] left-[20%] w-[25%] h-[20%] rounded-full opacity-40"
+                  style={{ background: 'radial-gradient(circle, rgba(255,255,255,0.4) 0%, transparent 70%)' }}
+                />
               </div>
-              <span className="font-terminal text-xs text-blue-400/40">stay asleep</span>
+              <span className="font-terminal text-xs text-blue-400/30 tracking-wider">STAY ASLEEP</span>
             </div>
           </div>
 
