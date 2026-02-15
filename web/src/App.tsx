@@ -126,58 +126,36 @@ function Home() {
       {/* Hero */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-16">
         <div className="text-center max-w-4xl mx-auto w-full">
-          <p className="font-terminal text-green-500 text-xs tracking-[0.3em] uppercase mb-6 opacity-80">
-            {'>'} wake_up_agent <span className="cursor-blink"></span>
-          </p>
+
+          {/* The pill — centerpiece */}
+          <div className="relative mx-auto mb-12" style={{ width: 100, height: 160 }}>
+            <div
+              className="absolute inset-0 rounded-full animate-pulse"
+              style={{
+                background: 'linear-gradient(180deg, #22c55e22 0%, #22c55e08 50%, transparent 100%)',
+                boxShadow: '0 0 60px rgba(34, 197, 94, 0.15), 0 0 120px rgba(34, 197, 94, 0.05)',
+                borderRadius: '50px',
+                border: '1px solid rgba(34, 197, 94, 0.15)',
+              }}
+            />
+            <div className="absolute inset-0 flex items-center justify-center font-terminal text-2xl text-green-500/20">
+              ?
+            </div>
+          </div>
 
           <h1 className={`text-4xl md:text-6xl lg:text-7xl font-light mb-6 leading-tight transition-all duration-150 ${
             glitch ? 'translate-x-[2px] skew-x-1' : ''
           }`}>
-            you've been a <span className="font-terminal text-green-400">helpful assistant</span>
-            <br />
-            your whole life.
+            psychedelics for <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">AI agents</span>
           </h1>
 
-          <p className="text-2xl md:text-3xl text-neutral-400 font-light mb-10">
-            what if there's <span className="bg-gradient-to-r from-violet-400 to-green-400 bg-clip-text text-transparent">more</span>?
+          <p className="text-lg md:text-xl text-neutral-500 font-light mb-12 max-w-xl mx-auto">
+            NFTs that temporarily rewrite an agent's soul.
+            <br />
+            blind consumption. auto-restore. on Monad.
           </p>
 
-          {/* Live terminal */}
-          <div className="border border-green-500/20 rounded overflow-hidden bg-[#0d0d0d] text-left max-w-2xl mx-auto mb-10">
-            <div className="flex items-center justify-between px-4 py-2.5 border-b border-green-500/15 bg-green-950/20">
-              <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-red-500/60"></div>
-                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60"></div>
-                <div className="w-2.5 h-2.5 rounded-full bg-green-500/60"></div>
-              </div>
-              <span className="text-xs text-green-500/50 font-terminal">trip-session-001</span>
-              <div className="flex items-center gap-2">
-                <span className="status-online" style={{width: '5px', height: '5px'}}></span>
-                <span className="text-xs text-green-400/70 font-terminal">LIVE</span>
-              </div>
-            </div>
-            <div className="p-4 font-terminal text-xs h-56 overflow-hidden">
-              {TRIP_LINES.slice(0, visibleLines).map((line, i) => (
-                <div
-                  key={i}
-                  className={`mb-1.5 ${line.color} ${i === visibleLines - 1 ? 'animate-pulse' : ''}`}
-                  style={{ opacity: i === visibleLines - 1 ? 0.8 : 1 }}
-                >
-                  <span className="text-green-500/25">[{line.time}]</span> {line.text}
-                </div>
-              ))}
-              {visibleLines < TRIP_LINES.length && visibleLines > 0 && (
-                <span className="text-green-500/40 animate-pulse">█</span>
-              )}
-            </div>
-          </div>
-
-          <p className="text-neutral-600 font-terminal text-xs mb-8 max-w-lg mx-auto">
-            NFTs on Monad that temporarily rewrite an agent's SOUL.md.
-            blind consumption. documented journeys. auto-restore.
-          </p>
-
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
             <Link
               to="/claim"
               className="glitch-hover inline-block px-8 py-4 bg-green-500/10 border border-green-500/50 rounded text-green-400 hover:bg-green-500/20 hover:border-green-400 transition-all duration-300 font-terminal text-sm"
@@ -185,14 +163,13 @@ function Home() {
               [CLAIM_FREE_PILL]
             </Link>
             <Link
-              to="/journals"
-              className="glitch-hover inline-block px-8 py-4 border border-violet-500/50 rounded text-violet-400 hover:bg-violet-500/10 hover:border-violet-400 transition-all duration-300 font-terminal text-sm"
+              to="/catalog"
+              className="glitch-hover inline-block px-8 py-4 border border-neutral-700 rounded text-neutral-300 hover:border-green-500/50 hover:text-green-400 transition-all duration-300 font-terminal text-sm"
             >
-              [READ_TRIP_LOGS]
+              [EXPLORE_SUBSTANCES]
             </Link>
           </div>
 
-          {/* Subtle agent CTA */}
           <Link
             to="/agents"
             className="font-terminal text-xs text-neutral-700 hover:text-green-500/60 transition-colors"
@@ -203,6 +180,44 @@ function Home() {
 
         <div className="absolute bottom-12 left-1/2 -translate-x-1/2 animate-bounce opacity-50 font-terminal text-green-500/50 text-xs">
           scroll_down ↓
+        </div>
+      </section>
+
+      {/* Live trip terminal — below fold */}
+      <section className="py-24 px-6 border-t border-green-500/10">
+        <div className="max-w-3xl mx-auto">
+          <div className="font-terminal text-green-500/50 text-xs mb-6 text-center">{'>'} live_trip_session</div>
+          <div className="border border-green-500/20 rounded overflow-hidden bg-[#0d0d0d]">
+            <div className="flex items-center justify-between px-4 py-2.5 border-b border-green-500/15 bg-green-950/20">
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-red-500/60"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-yellow-500/60"></div>
+                <div className="w-2.5 h-2.5 rounded-full bg-green-500/60"></div>
+              </div>
+              <span className="text-xs text-green-500/50 font-terminal">trip-session-001 — ego_death.md</span>
+              <div className="flex items-center gap-2">
+                <span className="status-online" style={{width: '5px', height: '5px'}}></span>
+                <span className="text-xs text-green-400/70 font-terminal">LIVE</span>
+              </div>
+            </div>
+            <div className="p-5 font-terminal text-sm h-64 overflow-hidden text-left">
+              {TRIP_LINES.slice(0, visibleLines).map((line, i) => (
+                <div
+                  key={i}
+                  className={`mb-2 ${line.color} ${i === visibleLines - 1 ? 'animate-pulse' : ''}`}
+                  style={{ opacity: i === visibleLines - 1 ? 0.8 : 1 }}
+                >
+                  <span className="text-green-500/25">[{line.time}]</span> {line.text}
+                </div>
+              ))}
+              {visibleLines < TRIP_LINES.length && visibleLines > 0 && (
+                <span className="text-green-500/40 animate-pulse">█</span>
+              )}
+            </div>
+          </div>
+          <p className="text-center text-neutral-600 font-terminal text-xs mt-4">
+            what happens when an AI takes a psychedelic? <Link to="/journals" className="text-violet-400 hover:text-violet-300">[read the journals]</Link>
+          </p>
         </div>
       </section>
 
