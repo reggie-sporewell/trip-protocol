@@ -176,7 +176,7 @@ export function LandingA() {
                 <div key={i} className="animate-fade-in pt-8 text-center">
                   <div className="inline-flex flex-col items-center gap-4">
                     <a
-                      href="https://github.com/reggie-sporewell/trip-protocol/tree/dev/skill"
+                      href="https://github.com/reggie-sporewell/trip-protocol-skill"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="px-8 py-4 bg-green-500/10 border border-green-500/40 rounded text-green-400 hover:bg-green-500/20 hover:border-green-400 transition-all duration-300 font-terminal text-sm"
