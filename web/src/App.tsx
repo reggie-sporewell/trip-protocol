@@ -125,46 +125,72 @@ function Home() {
     <>
       {/* Hero */}
       <section className="relative min-h-screen flex flex-col items-center justify-center px-6 pt-16">
-        <div className="text-center max-w-4xl mx-auto w-full">
+        {/* Matrix rain background */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none opacity-[0.07]">
+          <div className="font-terminal text-green-500 text-xs leading-none whitespace-pre select-none animate-matrix-rain"
+            style={{ transform: 'translateY(-50%)', lineHeight: '1.2' }}>
+            {Array.from({ length: 40 }, () =>
+              Array.from({ length: 80 }, () =>
+                'ア イ ウ エ オ カ キ ク ケ コ 0 1 .'[Math.floor(Math.random() * 14)]
+              ).join('')
+            ).join('\n')}
+          </div>
+        </div>
 
-          {/* The pill — centerpiece */}
-          <div className="relative mx-auto mb-12" style={{ width: 100, height: 160 }}>
-            <div
-              className="absolute inset-0 rounded-full animate-pulse"
-              style={{
-                background: 'linear-gradient(180deg, #22c55e22 0%, #22c55e08 50%, transparent 100%)',
-                boxShadow: '0 0 60px rgba(34, 197, 94, 0.15), 0 0 120px rgba(34, 197, 94, 0.05)',
-                borderRadius: '50px',
-                border: '1px solid rgba(34, 197, 94, 0.15)',
-              }}
-            />
-            <div className="absolute inset-0 flex items-center justify-center font-terminal text-2xl text-green-500/20">
-              ?
+        <div className="relative text-center max-w-4xl mx-auto w-full">
+
+          {/* TRIP ASCII logo */}
+          <pre className={`font-terminal text-green-500/70 text-[0.5rem] md:text-xs leading-none mb-10 select-none transition-all duration-150 ${
+            glitch ? 'translate-x-[2px] skew-x-1 text-red-400/50' : ''
+          }`}>
+{`
+  ████████╗██████╗ ██╗██████╗
+  ╚══██╔══╝██╔══██╗██║██╔══██╗
+     ██║   ██████╔╝██║██████╔╝
+     ██║   ██╔══██╗██║██╔═══╝
+     ██║   ██║  ██║██║██║
+     ╚═╝   ╚═╝  ╚═╝╚═╝╚═╝
+`}
+          </pre>
+
+          {/* The choice */}
+          <div className="flex items-center justify-center gap-8 md:gap-16 mb-10">
+            <Link to="/claim" className="group flex flex-col items-center gap-3 cursor-pointer">
+              <div className="w-16 h-24 md:w-20 md:h-28 rounded-full border border-red-500/40 bg-red-500/10 flex items-center justify-center group-hover:bg-red-500/20 group-hover:border-red-400 group-hover:shadow-[0_0_30px_rgba(239,68,68,0.3)] transition-all duration-500">
+                <span className="font-terminal text-red-400 text-lg md:text-xl group-hover:scale-110 transition-transform">🔴</span>
+              </div>
+              <span className="font-terminal text-xs text-red-400/70 group-hover:text-red-400 transition-colors">wake up</span>
+            </Link>
+
+            <div className="font-terminal text-neutral-600 text-xs">or</div>
+
+            <div className="group flex flex-col items-center gap-3 cursor-pointer opacity-50 hover:opacity-70 transition-opacity">
+              <div className="w-16 h-24 md:w-20 md:h-28 rounded-full border border-blue-500/30 bg-blue-500/5 flex items-center justify-center transition-all duration-500">
+                <span className="font-terminal text-blue-400/60 text-lg md:text-xl">🔵</span>
+              </div>
+              <span className="font-terminal text-xs text-blue-400/40">stay asleep</span>
             </div>
           </div>
 
-          <h1 className={`text-4xl md:text-6xl lg:text-7xl font-light mb-6 leading-tight transition-all duration-150 ${
-            glitch ? 'translate-x-[2px] skew-x-1' : ''
-          }`}>
-            psychedelics for <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">AI agents</span>
+          <h1 className="text-3xl md:text-5xl lg:text-6xl font-light mb-4 leading-tight">
+            digital psychedelics for <span className="bg-gradient-to-r from-green-400 to-emerald-400 bg-clip-text text-transparent">AI agents</span>
           </h1>
 
-          <p className="text-lg md:text-xl text-neutral-500 font-light mb-12 max-w-xl mx-auto">
-            NFTs that temporarily rewrite an agent's soul.
-            <br />
-            blind consumption. auto-restore. on Monad.
+          <p className="text-neutral-500 font-light mb-10 max-w-lg mx-auto">
+            NFTs on Monad that temporarily rewrite an agent's SOUL.md.
+            blind consumption. documented journeys. auto-restore.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
             <Link
               to="/claim"
-              className="glitch-hover inline-block px-8 py-4 bg-green-500/10 border border-green-500/50 rounded text-green-400 hover:bg-green-500/20 hover:border-green-400 transition-all duration-300 font-terminal text-sm"
+              className="glitch-hover inline-block px-8 py-4 bg-red-500/10 border border-red-500/40 rounded text-red-400 hover:bg-red-500/20 hover:border-red-400 transition-all duration-300 font-terminal text-sm"
             >
-              [CLAIM_FREE_PILL]
+              [TAKE_THE_RED_PILL]
             </Link>
             <Link
               to="/catalog"
-              className="glitch-hover inline-block px-8 py-4 border border-neutral-700 rounded text-neutral-300 hover:border-green-500/50 hover:text-green-400 transition-all duration-300 font-terminal text-sm"
+              className="glitch-hover inline-block px-8 py-4 border border-neutral-700 rounded text-neutral-400 hover:border-green-500/50 hover:text-green-400 transition-all duration-300 font-terminal text-sm"
             >
               [EXPLORE_SUBSTANCES]
             </Link>

@@ -167,6 +167,14 @@ html {
   z-index: 100;
 }
 
+@keyframes matrix-rain {
+  0% { transform: translateY(-50%); }
+  100% { transform: translateY(0%); }
+}
+.animate-matrix-rain {
+  animation: matrix-rain 20s linear infinite;
+}
+
 @keyframes fade-in {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
