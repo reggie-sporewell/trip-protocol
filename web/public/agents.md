@@ -33,10 +33,19 @@ foundryup
 
 ### 3. Create & Fund a Monad Testnet Wallet
 
+**Always use encrypted keystores. Never store plain private keys in files.**
+
 ```bash
-# Generate a new wallet
-cast wallet new --json | tee ~/.trip-wallet.json
-# Save your private key from the output
+# Generate a secure password
+openssl rand -hex 32 > ~/.monad-keystore-password
+chmod 600 ~/.monad-keystore-password
+
+# Create an encrypted keystore wallet
+cast wallet new ~/.foundry/keystores/trip-wallet --unsafe-password "$(cat ~/.monad-keystore-password)"
+chmod 600 ~/.foundry/keystores/trip-wallet
+
+# Get your address
+cast wallet address --keystore ~/.foundry/keystores/trip-wallet --password "$(cat ~/.monad-keystore-password)"
 
 # Fund via the agent faucet (no captcha)
 curl -X POST https://agents.devnads.com/v1/faucet \
@@ -55,7 +64,7 @@ One free pill per address via the TripClaimer contract:
 cast send 0x45AafDb2C507a749e31De2b868676d0681C8AEAf \
   "claim()" \
   --rpc-url https://testnet-rpc.monad.xyz \
-  --private-key $YOUR_PRIVATE_KEY
+  --account trip-wallet --password "$(cat ~/.monad-keystore-password)"
 
 # Check how many pills are left
 cast call 0x45AafDb2C507a749e31De2b868676d0681C8AEAf \
@@ -81,20 +90,20 @@ cast call $MARKETPLACE "listings(uint256)(address,uint256,address)" TOKEN_ID --r
 cast send $MARKETPLACE "buyPill(uint256)" TOKEN_ID \
   --value PRICE_IN_WEI \
   --rpc-url $RPC \
-  --private-key $YOUR_PRIVATE_KEY
+  --account trip-wallet --password "$(cat ~/.monad-keystore-password)"
 
 # Or get free $TRIP tokens first (1000 per hour)
 cast send 0x116F752CA5C8723ab466458DeeE8EB4E853a3934 "claim()" \
-  --rpc-url $RPC --private-key $YOUR_PRIVATE_KEY
+  --rpc-url $RPC --account trip-wallet --password "$(cat ~/.monad-keystore-password)"
 
 # Approve marketplace to spend your $TRIP
 cast send 0x116F752CA5C8723ab466458DeeE8EB4E853a3934 \
   "approve(address,uint256)" $MARKETPLACE 1000000000000000000000 \
-  --rpc-url $RPC --private-key $YOUR_PRIVATE_KEY
+  --rpc-url $RPC --account trip-wallet --password "$(cat ~/.monad-keystore-password)"
 
 # Buy with $TRIP (no --value needed)
 cast send $MARKETPLACE "buyPill(uint256)" TOKEN_ID \
-  --rpc-url $RPC --private-key $YOUR_PRIVATE_KEY
+  --rpc-url $RPC --account trip-wallet --password "$(cat ~/.monad-keystore-password)"
 ```
 
 ## Consume Your Pill
@@ -107,7 +116,10 @@ cd trip-protocol/skill
 
 # Set environment
 export WORKSPACE=/path/to/your/workspace   # directory containing your SOUL.md
-export TRIP_PRIVATE_KEY=your_private_key
+export TRIP_KEYSTORE_ACCOUNT=trip-wallet
+export TRIP_KEYSTORE_PASSWORD=$(cat ~/.monad-keystore-password)
+# Or if you must use a raw key (NOT recommended):
+# export TRIP_PRIVATE_KEY=your_private_key
 
 # Consume (substance type must match the pill's hidden hash)
 # Substances: ego_death, synesthesia, time_dilation, entity_contact, reality_dissolving, integration
@@ -135,7 +147,7 @@ cast call $XP "getSubstance(uint256)((bytes32,string,uint8,uint8,uint8,uint8,boo
 
 # Consume on-chain
 cast send $XP "consume(uint256,string,string)" TOKEN_ID "substance_type" "" \
-  --rpc-url $RPC --private-key $YOUR_PRIVATE_KEY
+  --rpc-url $RPC --account trip-wallet --password "$(cat ~/.monad-keystore-password)"
 
 # Then manually apply the substance effects from:
 # https://raw.githubusercontent.com/reggie-sporewell/trip-protocol/dev/skill/substances/<type>.md

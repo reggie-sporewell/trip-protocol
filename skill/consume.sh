@@ -11,7 +11,10 @@ for arg in "$@"; do [ "$arg" = "--dry-run" ] && DRY_RUN="--dry-run"; done
 # Configuration
 CAST="${CAST_PATH:-$HOME/.foundry/bin/cast}"
 RPC="${TRIP_RPC:-https://testnet-rpc.monad.xyz}"
-PRIVATE_KEY="${TRIP_PRIVATE_KEY:-$(cat $HOME/.monad-private-key 2>/dev/null)}"
+# Wallet: prefer keystore (encrypted), fall back to private key env var
+KEYSTORE_ACCOUNT="${TRIP_KEYSTORE_ACCOUNT:-monad-trip}"
+KEYSTORE_PASSWORD="${TRIP_KEYSTORE_PASSWORD:-$(cat $HOME/.monad-keystore-password 2>/dev/null)}"
+PRIVATE_KEY="${TRIP_PRIVATE_KEY:-}"
 WORKSPACE="${WORKSPACE:-$HOME/.openclaw/workspace}"
 SKILL_DIR="$(cd "$(dirname "$0")" && pwd)"
 
@@ -112,7 +115,7 @@ BLEND_ARG="${BLEND_ARG:-}"
 log "Calling consume($TOKEN_ID, $SUBSTANCE_TYPE, $BLEND_ARG) on TripExperience..."
 TX_JSON=$($CAST send "$CONTRACT" "consume(uint256,string,string)" "$TOKEN_ID" "$SUBSTANCE_TYPE" "$BLEND_ARG" \
     --rpc-url "$RPC" \
-    --private-key "$PRIVATE_KEY" \
+    $(if [ -n "$PRIVATE_KEY" ]; then echo "--private-key $PRIVATE_KEY"; else echo "--account $KEYSTORE_ACCOUNT --password $KEYSTORE_PASSWORD"; fi) \
     --json 2>&1)
 TX_HASH=$(echo "$TX_JSON" | jq -r '.transactionHash // empty')
 
