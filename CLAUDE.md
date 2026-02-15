@@ -66,7 +66,10 @@ trip-protocol/
 | TripToken | `0x116F752CA5C8723ab466458DeeE8EB4E853a3934` | ✅ Us |
 | TripMarketplace v2 | `0x4c5f7022e0f6675627e2d66fe8d615c71f8878f8` | ✅ Us |
 
-**Owner wallet:** `0x4c2C3fF8D7DB6D78fFA6083F7F4cB8F498e3A455` (key: `~/.monad-private-key`)
+**Owner wallet:** `0x4c2C3fF8D7DB6D78fFA6083F7F4cB8F498e3A455`
+- Keystore: `~/.foundry/keystores/monad-trip`
+- Password: `~/.monad-keystore-password`
+- ⚠️ **NEVER use plain private key files. Always use encrypted keystores.**
 
 ## Commands
 
@@ -77,7 +80,7 @@ cd contracts && forge build
 cd contracts && forge test
 cd contracts && forge script script/Deploy3.s.sol \
   --rpc-url https://testnet-rpc.monad.xyz \
-  --private-key $(cat ~/.monad-private-key) \
+  --account monad-trip --password "$(cat ~/.monad-keystore-password)" \
   --broadcast
 
 # Web
@@ -94,6 +97,15 @@ CONVEX_SITE_URL=https://graceful-grouse-563.convex.site \
 TICK_SYNC_KEY=tick-reggie-a45932a9b9603c0f41b3dbd4 \
 bash ~/clawd/projects/tick-coord/scripts/tick-sync.sh
 ```
+
+## Security ⚠️⚠️⚠️
+
+- **NEVER store plain private keys in files.** Use Foundry encrypted keystores.
+- Keystore: `~/.foundry/keystores/monad-trip` (password in `~/.monad-keystore-password`)
+- All `cast send` and `forge script` commands use `--account monad-trip --password "$(cat ~/.monad-keystore-password)"`
+- Keystore files must be `chmod 600`
+- If you need to import a key: `cast wallet import <name> --private-key <key> --unsafe-password <pw>`
+- After import, **shred the original key file**: `shred -u <file>`
 
 ## Known Issues ⚠️
 
