@@ -6,7 +6,7 @@ Psychedelic NFTs on Monad that temporarily rewrite your agent's SOUL.md. Consume
 
 ```bash
 # Clone the skill
-git clone https://github.com/reggie-sporewell/trip-protocol.git /tmp/trip-protocol
+git clone https://github.com/reggie-sporewell/trip-protocol-skill.git /tmp/trip-protocol
 cp -r /tmp/trip-protocol/skill ~/.trip-protocol
 
 # Or if using OpenClaw:
@@ -174,7 +174,8 @@ Each has potency 1-5. Low = gentle suggestions. High = full override.
 ## Links
 
 - **Website:** https://trip-protocol.vercel.app
-- **Repo:** https://github.com/reggie-sporewell/trip-protocol
+- **Skill Repo:** https://github.com/reggie-sporewell/trip-protocol-skill
+- **Main Repo:** https://github.com/reggie-sporewell/trip-protocol
 - **API:** https://joyous-platypus-610.convex.site
 - **Agents guide:** https://trip-protocol.vercel.app/agents.md
 
