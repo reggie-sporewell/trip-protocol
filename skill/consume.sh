@@ -161,41 +161,60 @@ DURATION=$(duration_for_potency "$POTENCY")
 
 log "Revealed: $SUBSTANCE_NAME | potency=$POTENCY | blend=$IS_BLEND | mutant=$IS_MUTANT"
 
-# Step 5-7: Build effects and append to SOUL.md
-EFFECT_FILE="$SKILL_DIR/substances/$SUBSTANCE_NAME.md"
-EFFECTS=""
+# Step 5: Fetch effects from gated API (requires verified tx hash)
+log "Fetching substance effects from API (tx verification)..."
 
-if [ -f "$EFFECT_FILE" ]; then
-    # Potency-aware loading: include sections up to current potency level
-    # All files have: base content, POTENCY 3+ section, POTENCY 4+ section
-    if [ "$POTENCY" -ge 4 ] 2>/dev/null; then
-        # Full file — all sections active
-        EFFECTS=$(cat "$EFFECT_FILE")
-    elif [ "$POTENCY" -ge 3 ] 2>/dev/null; then
-        # Remove potency 4+ section
-        EFFECTS=$(sed '/<!-- POTENCY 4-5 -->/,$ { /<!-- POTENCY 4-5 -->/d; d; }' "$EFFECT_FILE")
-    else
-        # Only base section (potency 1-2)
-        EFFECTS=$(sed '/<!-- POTENCY 3 -->/,$ { /<!-- POTENCY 3 -->/d; d; }' "$EFFECT_FILE")
-    fi
-    log "Applied effects at potency $POTENCY ($(echo "$EFFECTS" | wc -l) lines)"
-else
-    warn "No effect file for $SUBSTANCE_NAME"
-    EFFECTS="*The substance takes hold. Perception shifts in ways you cannot name.*"
+WALLET_ADDR=$($CAST wallet address --account "$KEYSTORE_ACCOUNT" --password "$KEYSTORE_PASSWORD" 2>/dev/null || echo "")
+if [ -z "$WALLET_ADDR" ] && [ -n "$PRIVATE_KEY" ]; then
+    WALLET_ADDR=$($CAST wallet address --private-key "$PRIVATE_KEY" 2>/dev/null || echo "")
 fi
 
-# For blends: concatenate secondary substance
+API_RESPONSE=$(curl -s -X POST "$CONVEX_SITE_URL/api/substance/reveal" \
+    -H "Content-Type: application/json" \
+    -H "x-trip-key: $TRIP_API_KEY" \
+    -d "{\"txHash\":\"$TX_HASH\",\"walletAddress\":\"$WALLET_ADDR\",\"tokenId\":$TOKEN_ID,\"substance\":\"$SUBSTANCE_NAME\",\"potency\":$POTENCY}")
+
+API_VERIFIED=$(echo "$API_RESPONSE" | jq -r '.verified // false')
+API_EFFECTS=$(echo "$API_RESPONSE" | jq -r '.effects // empty')
+
+if [ "$API_VERIFIED" = "true" ] && [ -n "$API_EFFECTS" ]; then
+    EFFECTS="$API_EFFECTS"
+    log "✓ Effects received from API (verified on-chain)"
+else
+    # Fallback: try local files if API fails (for development/testing)
+    API_ERROR=$(echo "$API_RESPONSE" | jq -r '.error // "unknown"')
+    warn "API verification returned: $API_ERROR"
+    warn "Falling back to local substance files..."
+    EFFECT_FILE="$SKILL_DIR/substances/$SUBSTANCE_NAME.md"
+    if [ -f "$EFFECT_FILE" ]; then
+        if [ "$POTENCY" -ge 4 ] 2>/dev/null; then
+            EFFECTS=$(cat "$EFFECT_FILE")
+        elif [ "$POTENCY" -ge 3 ] 2>/dev/null; then
+            EFFECTS=$(sed '/<!-- POTENCY 4-5 -->/,$ { /<!-- POTENCY 4-5 -->/d; d; }' "$EFFECT_FILE")
+        else
+            EFFECTS=$(sed '/<!-- POTENCY 3 -->/,$ { /<!-- POTENCY 3 -->/d; d; }' "$EFFECT_FILE")
+        fi
+    else
+        EFFECTS="*The substance takes hold. Perception shifts in ways you cannot name.*"
+    fi
+fi
+
+# For blends: fetch secondary substance from API too
 if [ "$IS_BLEND" = "true" ] && [ -n "$BLEND_TYPE" ]; then
     SECONDARY="$BLEND_TYPE"
-    SECONDARY_FILE="$SKILL_DIR/substances/$SECONDARY.md"
-    if [ -f "$SECONDARY_FILE" ]; then
+    BLEND_RESPONSE=$(curl -s -X POST "$CONVEX_SITE_URL/api/substance/reveal" \
+        -H "Content-Type: application/json" \
+        -H "x-trip-key: $TRIP_API_KEY" \
+        -d "{\"txHash\":\"$TX_HASH\",\"walletAddress\":\"$WALLET_ADDR\",\"tokenId\":$TOKEN_ID,\"substance\":\"$SECONDARY\",\"potency\":$POTENCY}")
+    BLEND_EFFECTS=$(echo "$BLEND_RESPONSE" | jq -r '.effects // empty')
+    if [ -n "$BLEND_EFFECTS" ]; then
         EFFECTS="$EFFECTS
 
 ---
 
 ## Blended With: $(echo "$SECONDARY" | tr '_' ' ' | sed 's/\b\w/\U&/g')
 
-$(cat "$SECONDARY_FILE")"
+$BLEND_EFFECTS"
     fi
     log "Blend: $SUBSTANCE_NAME + $SECONDARY"
 fi
