@@ -2,7 +2,7 @@
 project: trip-protocol
 schema_version: "1.0"
 created: Sat Feb 14 2026 06:45:24 GMT+0000 (Coordinated Universal Time)
-updated: 2026-02-15T00:21:20.485Z
+updated: 2026-02-15T00:37:59.206Z
 default_workflow: [backlog, todo, in_progress, review, done]
 id_prefix: TASK
 next_id: 41
@@ -12,7 +12,7 @@ next_id: 41
 
 | Agent | Type | Role | Status | Working On | Last Active | Trust Level |
 |-------|------|------|--------|------------|-------------|-------------|
-| @reggie | bot | engineer, coordinator | idle | - | 2026-02-15T00:21:20.485Z | trusted |
+| @reggie | bot | engineer, coordinator | idle | - | 2026-02-15T00:37:59.206Z | trusted |
 
 ---
 
@@ -942,38 +942,48 @@ history:
 
 ```yaml
 id: TASK-037
-status: backlog
+status: done
 priority: high
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-15T00:21:19.216Z
-updated_at: 2026-02-15T00:21:19.216Z
+updated_at: 2026-02-15T00:37:58.909Z
 tags:
   - skill
 history:
   - ts: 2026-02-15T00:21:19.216Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-15T00:37:58.909Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-038 · Trip end notification to Mel (restore.sh outputs JSON, agent needs to send message)
 
 ```yaml
 id: TASK-038
-status: backlog
+status: done
 priority: medium
 assigned_to: null
 claimed_by: null
 created_by: "@reggie"
 created_at: 2026-02-15T00:21:19.540Z
-updated_at: 2026-02-15T00:21:19.540Z
+updated_at: 2026-02-15T00:37:59.206Z
 tags:
   - skill
 history:
   - ts: 2026-02-15T00:21:19.540Z
     who: "@reggie"
     action: created
+  - ts: 2026-02-15T00:37:59.206Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
 
 ### TASK-039 · Verify WalletConnect provider actually works (TASK-026 may be incomplete)

@@ -13,6 +13,7 @@ import { LandingB } from './pages/LandingB'
 import { LandingC } from './pages/LandingC'
 import { LandingD } from './pages/LandingD'
 import { Gift } from './pages/Gift'
+import { Claim } from './pages/Claim'
 
 function Layout({ children }: { children: React.ReactNode }) {
   const [scrollY, setScrollY] = useState(0)
@@ -328,6 +329,7 @@ function App() {
           <Route path="/journals/:id" element={<JournalDetail />} />
           <Route path="/stats" element={<Stats />} />
           <Route path="/gift" element={<Gift />} />
+          <Route path="/claim" element={<Claim />} />
           <Route path="/landing/a" element={<LandingLayout><LandingA /></LandingLayout>} />
           <Route path="/landing/b" element={<LandingLayout><LandingB /></LandingLayout>} />
           <Route path="/landing/c" element={<LandingLayout><LandingC /></LandingLayout>} />
