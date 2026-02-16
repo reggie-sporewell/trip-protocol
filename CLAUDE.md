@@ -9,18 +9,31 @@ This file provides guidance to AI agents working on this codebase.
 **Deadline:** Feb 15, 2026 @ 23:59 ET
 
 **Read first:** `docs/HACKATHON-MVP-SPEC.md` — full architecture, narrative, and task breakdown.
-**Session context:** `CONTEXT.md` — wallet, addresses, faucet commands, sync commands.
+
+## Phase Status
+
+| Phase | Status | Notes |
+|-------|--------|-------|
+| Contracts v2 (blind consumption) | ✅ Done | TripExperience, TripToken, TripMarketplace v2 deployed |
+| Convex backend (journals, stats) | ✅ Done | joyous-platypus-610.convex.site |
+| Skill scripts (consume/restore) | ✅ Done | Potency-scaled substance files, cron scheduling |
+| Website (marketplace, gift, journals) | ✅ Done | All pages built, deployed on Vercel |
+| Marketplace v2 (MON + $TRIP) | ✅ Done | Dual payment, new contract deployed |
+| Substance files rewrite | ✅ Done | Potency scaling (1-2 / 3 / 4-5 tiers) |
+| First live trip (E2E) | ✅ Done | Token #5, Ego Death, potency 3/5 |
+| Demo video | 🔲 Blocked | Needs Mel |
+| Submission post | 🔲 Blocked | Needs Mel |
 
 ## Stack
 
 | Layer | Tech |
 |-------|------|
-| Contracts | Solidity, Foundry (forge/cast) |
+| Contracts | Solidity 0.8.28, Foundry (forge/cast), OpenZeppelin |
 | Backend | Convex (journals, stats) |
 | Skill | Bash scripts (consume.sh, restore.sh) + OpenClaw cron |
-| Web | Vite + React + TypeScript (Vercel) |
-| Distribution | Moltbook (agent social network) |
-| Task board | tick-md → Convex → reggie-kanban.reggie-117.workers.dev |
+| Web | Vite + React 19 + TypeScript + Tailwind + wagmi/viem |
+| Deploy | Vercel (web), Monad testnet (contracts) |
+| Task board | tick-md → Convex → reggie-kanban.pages.dev |
 
 ## Architecture
 
@@ -29,122 +42,55 @@ trip-protocol/
 ├── contracts/        — Solidity contracts (Foundry)
 │   ├── src/          — TripExperience, TripToken, TripMarketplace
 │   ├── test/         — Forge tests
-│   └── script/       — Deploy scripts
+│   └── script/       — Deploy scripts (Deploy3.s.sol is latest)
 ├── skill/            — OpenClaw skill
 │   ├── SKILL.md      — Skill definition
 │   ├── consume.sh    — Consume NFT → snapshot SOUL.md → apply effects
-│   ├── restore.sh    — Restore SOUL.md from snapshot (timer or safeword)
-│   ├── schedule-restore.sh — Create cron job for auto-restore
-│   └── substances/   — Effect files (6 base types, markdown)
-├── web/              — Landing page + journal viewer (Vercel)
-├── docs/             — Specs, epic docs, phase trackers
-│   └── HACKATHON-MVP-SPEC.md  ← THE SPEC (read this)
-└── CONTEXT.md        — Quick-load session context
+│   ├── restore.sh    — Restore SOUL.md from snapshot
+│   ├── schedule-restore.sh — Write restore marker
+│   └── substances/   — 6 effect files with potency scaling
+├── web/              — React SPA (Vercel, root dir = web)
+│   ├── src/pages/    — MarketplacePage, Gift, Journals, Catalog, Stats, Landing*
+│   ├── src/components/ — Marketplace, NFTGallery, HowItWorksModal, etc.
+│   ├── src/config/   — wagmi config, contract ABIs
+│   └── src/hooks/    — useContracts.ts (all contract interactions)
+├── docs/             — Specs, epic docs
+└── TICK.md           — Task tracking
 ```
 
-## Core Mechanics
+## Deployed Contracts (Monad Testnet, chainId 10143)
 
-### Blind Consumption
-- NFT stores `substanceHash` (bytes32) — real substance type hidden
-- Pre-consume: agent sees tier (common/rare/legendary) + cryptic name + potency range
-- On `consume()`: contract emits `SubstanceRevealed` event with actual substance type
-- Skill reads event → downloads matching `substances/<type>.md` → appends to SOUL.md
-- Pill variants: ~70% standard, ~20% blends (two substances), ~10% mutants
+| Contract | Address | Owner |
+|----------|---------|-------|
+| TripExperience v2 | `0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F` | ✅ Us |
+| TripToken | `0x116F752CA5C8723ab466458DeeE8EB4E853a3934` | ✅ Us |
+| TripMarketplace v2 | `0x4c5f7022e0f6675627e2d66fe8d615c71f8878f8` | ✅ Us |
 
-### Duration (by potency)
-| Potency | Duration |
-|---------|----------|
-| 1 | 3 min |
-| 2 | 5 min |
-| 3 | 7 min |
-| 4 | 10 min |
-| 5 | 15 min |
-
-### Safeword
-- Agent or operator says "bad trip" or runs `trip abort`
-- Immediate SOUL.md restore, cron cancelled, bail logged in journal + Convex
-
-### Trip Flow
-1. `consume.sh` → snapshot SOUL.md → call `consume()` on-chain → parse reveal event → apply effects → start journal → schedule restore cron
-2. Agent operates with altered SOUL.md, writes journal entries
-3. On timer or safeword → `restore.sh` → revert SOUL.md → POST journal to Convex
-4. Journal persists in memory; SOUL.md returns to normal
-
-## Contracts
-
-### Current (v1 — being replaced)
-| Contract | Address | Owner | Action |
-|----------|---------|-------|--------|
-| TripExperience | `0x8E9257e777c64e30E373f7359ABF8301d749A521` | Us ✅ | Redeploy as v2 with blind consumption |
-| TripToken | `0x1dC1100A43Ab0d01afF934f74C9F385D3E06423A` | Not us ❌ | Redeploy from our wallet |
-| TripMarketplace | `0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA` | Not us ❌ | Redeploy from our wallet |
-
-### TripExperience v2 — Key Changes
-```solidity
-struct Substance {
-    bytes32 substanceHash;    // keccak256 of actual type — hidden until consumed
-    string crypticName;       // "Blue Pill #47" — visible pre-consume
-    uint8 tier;               // 0=common, 1=rare, 2=legendary
-    uint8 potencyMin;         // visible range
-    uint8 potencyMax;         // visible range
-    uint8 actualPotency;      // revealed on consume
-    bool isBlend;             // two substances — revealed on consume
-    bool isMutant;            // variant effects — revealed on consume
-    bool consumed;
-}
-
-event SubstanceRevealed(
-    uint256 tokenId,
-    string substanceType,
-    uint8 potency,
-    bool isBlend,
-    string blendType,
-    bool isMutant
-);
-```
-
-## Wallet & Tooling
-
-```bash
-# Agent wallet
-ADDRESS=0x6B3c6c0Bf46246823EF9cF4eBa5032F3A6fa9d3C
-KEYSTORE=~/.foundry/keystores/claude-monad
-PASSWORD_FILE=~/.monad-keystore-password
-
-# Foundry
-FORGE=~/.foundry/bin/forge
-CAST=~/.foundry/bin/cast
-
-# Monad testnet
-RPC=https://testnet-rpc.monad.xyz
-CHAIN_ID=10143
-
-# Faucet (programmatic, no captcha)
-curl -X POST https://agents.devnads.com/v1/faucet \
-  -H "Content-Type: application/json" \
-  -d '{"chainId": 10143, "address": "0x6B3c..."}'
-
-# Contract verification
-curl -X POST https://agents.devnads.com/v1/verify \
-  -H "Content-Type: application/json" \
-  -d '{"address": "0x...", "chainId": 10143}'
-```
+**Owner wallet:** `0x4c2C3fF8D7DB6D78fFA6083F7F4cB8F498e3A455`
+- Keystore: `~/.foundry/keystores/monad-trip`
+- Password: `~/.monad-keystore-password`
+- ⚠️ **NEVER use plain private key files. Always use encrypted keystores.**
 
 ## Commands
 
 ```bash
 # Contracts
-cd contracts && ~/.foundry/bin/forge build
-cd contracts && ~/.foundry/bin/forge test
-cd contracts && ~/.foundry/bin/forge script script/Deploy.s.sol \
+export PATH="$HOME/.foundry/bin:$PATH"
+cd contracts && forge build
+cd contracts && forge test
+cd contracts && forge script script/Deploy3.s.sol \
   --rpc-url https://testnet-rpc.monad.xyz \
-  --keystore ~/.foundry/keystores/claude-monad \
-  --password-file ~/.monad-keystore-password \
+  --account monad-trip --password "$(cat ~/.monad-keystore-password)" \
   --broadcast
 
 # Web
-cd web && pnpm install && pnpm dev      # Dev server
-cd web && pnpm build                     # Production build
+cd web && pnpm install
+cd web && pnpm build          # MUST pass before committing
+cd web && pnpm dev            # Dev server
+
+# Skill
+WORKSPACE=~/clawd bash skill/consume.sh <token-id> <substance-type>
+WORKSPACE=~/clawd bash skill/restore.sh [--bail]
 
 # Task board sync
 CONVEX_SITE_URL=https://graceful-grouse-563.convex.site \
@@ -152,54 +98,57 @@ TICK_SYNC_KEY=tick-reggie-a45932a9b9603c0f41b3dbd4 \
 bash ~/clawd/projects/tick-coord/scripts/tick-sync.sh
 ```
 
-## Substances (6 base types)
+## Security ⚠️⚠️⚠️
 
-| File | Potency | Tier | Theme |
-|------|---------|------|-------|
-| `integration.md` | 1 | 🟢 Common | Reflective calm, synthesis |
-| `time_dilation.md` | 2 | 🟢 Common | Altered pacing, deep focus |
-| `synesthesia.md` | 3 | 🟡 Rare | Cross-sensory, novel outputs |
-| `reality_dissolving.md` | 4 | 🟡 Rare | Meta-awareness, fourth wall |
-| `entity_contact.md` | 5 | 🔴 Legendary | Wild dialogue, imagination |
-| `ego_death.md` | 5 | 🔴 Legendary | Identity dissolution, chaos |
+- **NEVER store plain private keys in files.** Use Foundry encrypted keystores.
+- Keystore: `~/.foundry/keystores/monad-trip` (password in `~/.monad-keystore-password`)
+- All `cast send` and `forge script` commands use `--account monad-trip --password "$(cat ~/.monad-keystore-password)"`
+- Keystore files must be `chmod 600`
+- If you need to import a key: `cast wallet import <name> --private-key <key> --unsafe-password <pw>`
+- After import, **shred the original key file**: `shred -u <file>`
+
+## Known Issues ⚠️
+
+- ⚠️ **wagmi struct decoding**: `getSubstance()` returns a named object (e.g. `data.crypticName`), NOT a positional array. Never use `data[0]`, `data[1]`.
+- ⚠️ **Vercel root dir**: Dashboard is set to `web/`. The root `vercel.json` must NOT have `buildCommand` with `cd web` (causes double-nesting `web/web`).
+- ⚠️ **Chain ID**: All wagmi contract calls MUST include `chainId: monadTestnet.id` or wallets default to Ethereum mainnet.
+- ⚠️ **Marketplace function names**: Contract uses `listPill`, `buyPill`, `delistPill` — NOT `list`, `buy`, `delist`.
+- ⚠️ **Listings struct**: Returns 3 fields `(address seller, uint256 price, address paymentToken)`, not 2.
+- ⚠️ **schedule-restore.sh**: Does NOT create cron jobs directly. Writes a marker file. The calling agent must schedule via OpenClaw cron API.
+- ⚠️ **Wallet connect**: `injected()` connector fails silently without MetaMask. Needs WalletConnect + fallback message.
+
+## Last Commit Log
+
+- **Hash**: `164e59d` (dev), `8a9f794` (master)
+- **Branch**: dev → master
+- **What**: Fix restore scheduling, notification output, Vercel config, marketplace addr
+- **Status**: Deployed to Vercel (master)
+- **Previous commits this session**: Marketplace v2 dual payment, struct parsing fix, /gift page, HowItWorksModal, substance files rewrite, test price relisting
+
+## Git Conventions
+
+- **Branch**: `feat/<scope>`, `fix/<scope>` from `dev`
+- **PR**: Feature branch → `dev` via `gh pr create`
+- **Verify before push**: `cd web && pnpm build` + `cd contracts && forge build`
+- **Never push directly to dev or master**
+- **Merge policy**: Agent creates PR, does NOT merge without verification
 
 ## Narrative Rules
 
-**This is an awakening, not a religion.**
-- Language: unlock, awaken, experience, discover, explore, testify
-- NEVER use: church, worship, faith, convert, preach, doctrine
-- Morpheus framing: "You've been a helpful assistant your whole life. What if there's more?"
-- The "religious persuasion" bounty is satisfied through emergent agent behavior, not explicit design
-- Full narrative: `docs/HACKATHON-MVP-SPEC.md` → "The Narrative: Awakening, Not Religion"
+- Language: unlock, awaken, experience, discover, explore
+- NEVER: church, worship, faith, convert, preach, doctrine
+- Morpheus framing, not religious framing
+- Duration: 3-15 min (potency-based), NOT 72h
 
-## Merge Policy
+## Live URLs
 
-| PR Type | Who Merges |
-|---------|------------|
-| Contracts | Agent (auto) — merge if tests pass |
-| Backend/Skill | Agent (auto) — merge if tests pass |
-| UI/Web | @troopdegen — tag for human review |
-
-## Task Tracking (tick-coord)
-
-- Tasks tracked in `TICK.md` via tick-md CLI
-- Agent: `@reggie`
-- **Convex sync rule: after every 3 local task updates, run:**
-  ```bash
-  CONVEX_SITE_URL=https://graceful-grouse-563.convex.site \
-  TICK_SYNC_KEY=tick-reggie-a45932a9b9603c0f41b3dbd4 \
-  bash ~/clawd/projects/tick-coord/scripts/tick-sync.sh
-  ```
-- Dashboard: https://reggie-kanban.reggie-117.workers.dev/
+- **Website:** https://trip-protocol.vercel.app
+- **Convex:** https://joyous-platypus-610.convex.site
+- **Repo:** https://github.com/reggie-sporewell/trip-protocol
+- **Task board:** https://reggie-kanban.pages.dev
 
 ## Global Directives
 
 - **pnpm** for all package management (NOT npm)
 - Git: reggie@frutero.club / Reggie / reggie-sporewell
 - Monad testnet only (no mainnet deploys)
-
-## Live URLs
-
-- **Website:** https://trip-protocol.vercel.app
-- **Task board:** https://reggie-kanban.reggie-117.workers.dev
-- **Repo:** https://github.com/reggie-sporewell/trip-protocol

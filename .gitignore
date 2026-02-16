@@ -32,5 +32,5 @@ Thumbs.db
 # Logs
 *.log
 npm-debug.log*
-.vercel
-.env*.local
+skill/substances/*.md
+!skill/substances/README.md

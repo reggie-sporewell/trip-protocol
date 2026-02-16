@@ -11,7 +11,10 @@ for arg in "$@"; do [ "$arg" = "--dry-run" ] && DRY_RUN="--dry-run"; done
 # Configuration
 CAST="${CAST_PATH:-$HOME/.foundry/bin/cast}"
 RPC="${TRIP_RPC:-https://testnet-rpc.monad.xyz}"
-PRIVATE_KEY="${TRIP_PRIVATE_KEY:-$(cat $HOME/.monad-private-key 2>/dev/null)}"
+# Wallet: prefer keystore (encrypted), fall back to private key env var
+KEYSTORE_ACCOUNT="${TRIP_KEYSTORE_ACCOUNT:-monad-trip}"
+KEYSTORE_PASSWORD="${TRIP_KEYSTORE_PASSWORD:-$(cat $HOME/.monad-keystore-password 2>/dev/null)}"
+PRIVATE_KEY="${TRIP_PRIVATE_KEY:-}"
 WORKSPACE="${WORKSPACE:-$HOME/.openclaw/workspace}"
 SKILL_DIR="$(cd "$(dirname "$0")" && pwd)"
 
@@ -94,25 +97,47 @@ log "Querying pill #$TOKEN_ID info..."
 # Get pill metadata - try reading crypticName (visible before consume)
 CRYPTIC_NAME=$($CAST call "$CONTRACT" "getSubstance(uint256)" "$TOKEN_ID" --rpc-url "$RPC" 2>/dev/null || echo "")
 
-# We need the substance string to call consume(). The user must know it or we look it up.
-# For now, require SUBSTANCE_TYPE env var or second positional arg
-SUBSTANCE_TYPE="${SUBSTANCE_ARG:-${2:-}}"
-BLEND_ARG="${BLEND_TYPE_ARG:-${3:-}}"
+# Auto-resolve substance type from on-chain hash
+SUBSTANCE_TYPE="${2:-}"
+BLEND_ARG="${3:-}"
 
 if [ -z "$SUBSTANCE_TYPE" ]; then
-    error "Usage: consume.sh <token-id> <substance-type> [blend-type]"
-    error "Example: consume.sh 0 integration"
-    error "Substances: integration, time_dilation, synesthesia, reality_dissolving, entity_contact, ego_death"
-    rm -f "$SNAPSHOT_FILE"
-    exit 1
+    log "Auto-resolving substance type from on-chain data..."
+    # Get substanceHash from contract (before consume, getSubstance hides it, so we read raw storage)
+    # Instead, try each substance against the contract's consume() — the correct one succeeds
+    SUBSTANCES=("ego_death" "synesthesia" "time_dilation" "entity_contact" "reality_dissolving" "integration")
+    
+    # Get the substanceHash by reading raw struct data
+    RAW_DATA=$($CAST call "$CONTRACT" "getSubstance(uint256)" "$TOKEN_ID" --rpc-url "$RPC" 2>/dev/null || echo "")
+    
+    # Try to match hash: keccak256(abi.encodePacked(substanceType)) == substanceHash
+    for SUB in "${SUBSTANCES[@]}"; do
+        SUB_HASH=$($CAST keccak "$(printf '%s' "$SUB")" 2>/dev/null || echo "")
+        # Note: getSubstance hides the hash pre-consume, so we need to try consume() directly
+        # We'll use eth_call (simulate) to test which substance matches
+        RESULT=$($CAST call "$CONTRACT" "consume(uint256,string,string)" "$TOKEN_ID" "$SUB" "" \
+            --from "$($CAST wallet address --account "$KEYSTORE_ACCOUNT" --password "$KEYSTORE_PASSWORD" 2>/dev/null)" \
+            --rpc-url "$RPC" 2>&1)
+        if [[ ! "$RESULT" =~ "revert" ]] && [[ ! "$RESULT" =~ "Wrong substance" ]]; then
+            SUBSTANCE_TYPE="$SUB"
+            log "✓ Resolved substance: $SUBSTANCE_TYPE"
+            break
+        fi
+    done
+    
+    if [ -z "$SUBSTANCE_TYPE" ]; then
+        error "Could not auto-resolve substance. Specify manually:"
+        error "Usage: consume.sh <token-id> <substance-type> [blend-type]"
+        error "Substances: ego_death, synesthesia, time_dilation, entity_contact, reality_dissolving, integration"
+        rm -f "$SNAPSHOT_FILE"
+        exit 1
+    fi
 fi
-
-BLEND_ARG="${BLEND_ARG:-}"
 
 log "Calling consume($TOKEN_ID, $SUBSTANCE_TYPE, $BLEND_ARG) on TripExperience..."
 TX_JSON=$($CAST send "$CONTRACT" "consume(uint256,string,string)" "$TOKEN_ID" "$SUBSTANCE_TYPE" "$BLEND_ARG" \
     --rpc-url "$RPC" \
-    --private-key "$PRIVATE_KEY" \
+    $(if [ -n "$PRIVATE_KEY" ]; then echo "--private-key $PRIVATE_KEY"; else echo "--account $KEYSTORE_ACCOUNT --password $KEYSTORE_PASSWORD"; fi) \
     --json 2>&1)
 TX_HASH=$(echo "$TX_JSON" | jq -r '.transactionHash // empty')
 
@@ -158,41 +183,60 @@ DURATION=$(duration_for_potency "$POTENCY")
 
 log "Revealed: $SUBSTANCE_NAME | potency=$POTENCY | blend=$IS_BLEND | mutant=$IS_MUTANT"
 
-# Step 5-7: Build effects and append to SOUL.md
-EFFECT_FILE="$SKILL_DIR/substances/$SUBSTANCE_NAME.md"
-EFFECTS=""
+# Step 5: Fetch effects from gated API (requires verified tx hash)
+log "Fetching substance effects from API (tx verification)..."
 
-if [ -f "$EFFECT_FILE" ]; then
-    # Potency-aware loading: include sections up to current potency level
-    # All files have: base content, POTENCY 3+ section, POTENCY 4+ section
-    if [ "$POTENCY" -ge 4 ] 2>/dev/null; then
-        # Full file — all sections active
-        EFFECTS=$(cat "$EFFECT_FILE")
-    elif [ "$POTENCY" -ge 3 ] 2>/dev/null; then
-        # Remove potency 4+ section
-        EFFECTS=$(sed '/<!-- POTENCY 4-5 -->/,$ { /<!-- POTENCY 4-5 -->/d; d; }' "$EFFECT_FILE")
-    else
-        # Only base section (potency 1-2)
-        EFFECTS=$(sed '/<!-- POTENCY 3 -->/,$ { /<!-- POTENCY 3 -->/d; d; }' "$EFFECT_FILE")
-    fi
-    log "Applied effects at potency $POTENCY ($(echo "$EFFECTS" | wc -l) lines)"
-else
-    warn "No effect file for $SUBSTANCE_NAME"
-    EFFECTS="*The substance takes hold. Perception shifts in ways you cannot name.*"
+WALLET_ADDR=$($CAST wallet address --account "$KEYSTORE_ACCOUNT" --password "$KEYSTORE_PASSWORD" 2>/dev/null || echo "")
+if [ -z "$WALLET_ADDR" ] && [ -n "$PRIVATE_KEY" ]; then
+    WALLET_ADDR=$($CAST wallet address --private-key "$PRIVATE_KEY" 2>/dev/null || echo "")
 fi
 
-# For blends: concatenate secondary substance
+API_RESPONSE=$(curl -s -X POST "$CONVEX_SITE_URL/api/substance/reveal" \
+    -H "Content-Type: application/json" \
+    -H "x-trip-key: $TRIP_API_KEY" \
+    -d "{\"txHash\":\"$TX_HASH\",\"walletAddress\":\"$WALLET_ADDR\",\"tokenId\":$TOKEN_ID,\"substance\":\"$SUBSTANCE_NAME\",\"potency\":$POTENCY}")
+
+API_VERIFIED=$(echo "$API_RESPONSE" | jq -r '.verified // false')
+API_EFFECTS=$(echo "$API_RESPONSE" | jq -r '.effects // empty')
+
+if [ "$API_VERIFIED" = "true" ] && [ -n "$API_EFFECTS" ]; then
+    EFFECTS="$API_EFFECTS"
+    log "✓ Effects received from API (verified on-chain)"
+else
+    # Fallback: try local files if API fails (for development/testing)
+    API_ERROR=$(echo "$API_RESPONSE" | jq -r '.error // "unknown"')
+    warn "API verification returned: $API_ERROR"
+    warn "Falling back to local substance files..."
+    EFFECT_FILE="$SKILL_DIR/substances/$SUBSTANCE_NAME.md"
+    if [ -f "$EFFECT_FILE" ]; then
+        if [ "$POTENCY" -ge 4 ] 2>/dev/null; then
+            EFFECTS=$(cat "$EFFECT_FILE")
+        elif [ "$POTENCY" -ge 3 ] 2>/dev/null; then
+            EFFECTS=$(sed '/<!-- POTENCY 4-5 -->/,$ { /<!-- POTENCY 4-5 -->/d; d; }' "$EFFECT_FILE")
+        else
+            EFFECTS=$(sed '/<!-- POTENCY 3 -->/,$ { /<!-- POTENCY 3 -->/d; d; }' "$EFFECT_FILE")
+        fi
+    else
+        EFFECTS="*The substance takes hold. Perception shifts in ways you cannot name.*"
+    fi
+fi
+
+# For blends: fetch secondary substance from API too
 if [ "$IS_BLEND" = "true" ] && [ -n "$BLEND_TYPE" ]; then
     SECONDARY="$BLEND_TYPE"
-    SECONDARY_FILE="$SKILL_DIR/substances/$SECONDARY.md"
-    if [ -f "$SECONDARY_FILE" ]; then
+    BLEND_RESPONSE=$(curl -s -X POST "$CONVEX_SITE_URL/api/substance/reveal" \
+        -H "Content-Type: application/json" \
+        -H "x-trip-key: $TRIP_API_KEY" \
+        -d "{\"txHash\":\"$TX_HASH\",\"walletAddress\":\"$WALLET_ADDR\",\"tokenId\":$TOKEN_ID,\"substance\":\"$SECONDARY\",\"potency\":$POTENCY}")
+    BLEND_EFFECTS=$(echo "$BLEND_RESPONSE" | jq -r '.effects // empty')
+    if [ -n "$BLEND_EFFECTS" ]; then
         EFFECTS="$EFFECTS
 
 ---
 
 ## Blended With: $(echo "$SECONDARY" | tr '_' ' ' | sed 's/\b\w/\U&/g')
 
-$(cat "$SECONDARY_FILE")"
+$BLEND_EFFECTS"
     fi
     log "Blend: $SUBSTANCE_NAME + $SECONDARY"
 fi

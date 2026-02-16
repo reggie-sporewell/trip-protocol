@@ -17,7 +17,7 @@ function corsHeaders(contentType = "application/json"): Record<string, string> {
   return {
     "Content-Type": contentType,
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+    "Access-Control-Allow-Methods": "GET, POST, DELETE, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type, x-trip-key",
   };
 }
@@ -37,7 +37,7 @@ const preflight = httpAction(async () => {
 });
 
 // Register preflight for all routes
-for (const path of ["/api/journals", "/api/stats", "/api/featured"]) {
+for (const path of ["/api/journals", "/api/stats", "/api/featured", "/api/substance/reveal"]) {
   http.route({ path, method: "OPTIONS", handler: preflight });
 }
 
@@ -86,6 +86,25 @@ http.route({
   }),
 });
 
+// ─── DELETE /api/journals ────────────────────────────────────────
+
+http.route({
+  path: "/api/journals",
+  method: "DELETE",
+  handler: httpAction(async (ctx, request) => {
+    if (!verifyKey(request)) return unauthorized();
+    try {
+      const body = await request.json();
+      const { id } = body as { id: string };
+      if (!id) return json({ error: "id required" }, 400);
+      await ctx.runMutation(internal.journals.remove, { id: id as any });
+      return json({ success: true });
+    } catch (e: any) {
+      return json({ error: e.message }, 400);
+    }
+  }),
+});
+
 // ─── GET /api/stats ─────────────────────────────────────────────
 
 http.route({
@@ -107,6 +126,55 @@ http.route({
     // Public endpoint - no auth required
     const featured = await ctx.runQuery(internal.journals.featured, {});
     return json(featured ?? { message: "No trips yet" });
+  }),
+});
+
+// ─── POST /api/substance/reveal ─────────────────────────────────
+// Gated endpoint: returns substance effects only after on-chain verification
+
+http.route({
+  path: "/api/substance/reveal",
+  method: "POST",
+  handler: httpAction(async (ctx, request) => {
+    if (!verifyKey(request)) return unauthorized();
+    try {
+      const body = await request.json();
+      const { txHash, walletAddress, tokenId, substance, potency } = body;
+      
+      if (!txHash || !walletAddress || tokenId === undefined || !substance || !potency) {
+        return json({ error: "Missing required fields: txHash, walletAddress, tokenId, substance, potency" }, 400);
+      }
+
+      // Verify the on-chain transaction
+      const verification = await ctx.runAction(internal.substances.verifyConsumeTx, {
+        txHash,
+        walletAddress,
+        tokenId,
+      });
+
+      if (!verification.verified) {
+        return json({ error: "Verification failed", reason: verification.error }, 403);
+      }
+
+      // Transaction verified — return the substance content
+      const content = await ctx.runQuery(internal.substances.getSubstanceContent, {
+        substance,
+        potency,
+      });
+
+      if (!content) {
+        return json({ error: "Unknown substance or potency" }, 404);
+      }
+
+      return json({
+        verified: true,
+        substance: content.name,
+        potency: content.potency,
+        effects: content.content,
+      });
+    } catch (e: any) {
+      return json({ error: e.message }, 500);
+    }
   }),
 });
 

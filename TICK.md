@@ -2,17 +2,17 @@
 project: trip-protocol
 schema_version: "1.0"
 created: Sat Feb 14 2026 06:45:24 GMT+0000 (Coordinated Universal Time)
-updated: 2026-02-14T21:05:02.451Z
+updated: 2026-02-15T00:37:59.206Z
 default_workflow: [backlog, todo, in_progress, review, done]
 id_prefix: TASK
-next_id: 28
+next_id: 41
 ---
 
 ## Agents
 
 | Agent | Type | Role | Status | Working On | Last Active | Trust Level |
 |-------|------|------|--------|------------|-------------|-------------|
-| @reggie | bot | engineer, coordinator | idle | - | 2026-02-14T21:05:02.451Z | trusted |
+| @reggie | bot | engineer, coordinator | idle | - | 2026-02-15T00:37:59.206Z | trusted |
 
 ---
 
@@ -717,4 +717,315 @@ history:
   - ts: 2026-02-14T17:53:20.112Z
     who: "@reggie"
     action: created
+```
+
+### TASK-028 · Marketplace v2: dual payment (MON + $TRIP)
+
+```yaml
+id: TASK-028
+status: done
+priority: high
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:06.297Z
+updated_at: 2026-02-15T00:21:06.718Z
+tags:
+  - web
+  - contracts
+history:
+  - ts: 2026-02-15T00:21:06.297Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-15T00:21:06.718Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
+```
+
+### TASK-029 · Gift page (/gift) - select pill, enter recipient, transfer NFT
+
+```yaml
+id: TASK-029
+status: done
+priority: high
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:07.107Z
+updated_at: 2026-02-15T00:21:07.450Z
+tags:
+  - web
+history:
+  - ts: 2026-02-15T00:21:07.107Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-15T00:21:07.450Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
+```
+
+### TASK-030 · How It Works modal on marketplace page
+
+```yaml
+id: TASK-030
+status: done
+priority: high
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:07.739Z
+updated_at: 2026-02-15T00:21:07.957Z
+tags:
+  - web
+history:
+  - ts: 2026-02-15T00:21:07.739Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-15T00:21:07.957Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
+```
+
+### TASK-031 · Rewrite 6 substance files with potency scaling
+
+```yaml
+id: TASK-031
+status: done
+priority: high
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:08.226Z
+updated_at: 2026-02-15T00:21:08.550Z
+tags:
+  - skill
+history:
+  - ts: 2026-02-15T00:21:08.226Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-15T00:21:08.550Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
+```
+
+### TASK-032 · Fix getSubstance struct parsing (named objects not arrays)
+
+```yaml
+id: TASK-032
+status: done
+priority: high
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:08.903Z
+updated_at: 2026-02-15T00:21:09.248Z
+tags:
+  - web
+  - bugfix
+history:
+  - ts: 2026-02-15T00:21:08.903Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-15T00:21:09.248Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
+```
+
+### TASK-033 · Fix chain ID: explicit monadTestnet.id on all contract calls
+
+```yaml
+id: TASK-033
+status: done
+priority: high
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:09.535Z
+updated_at: 2026-02-15T00:21:09.838Z
+tags:
+  - web
+  - bugfix
+history:
+  - ts: 2026-02-15T00:21:09.535Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-15T00:21:09.838Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
+```
+
+### TASK-034 · Test listing prices adjusted (MON 0.05-1.0, TRIP 75-500)
+
+```yaml
+id: TASK-034
+status: done
+priority: medium
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:10.130Z
+updated_at: 2026-02-15T00:21:10.445Z
+tags:
+  - contracts
+history:
+  - ts: 2026-02-15T00:21:10.130Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-15T00:21:10.445Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
+```
+
+### TASK-035 · First live trip E2E: Token #5 Black Lotus, Ego Death, journal to Convex
+
+```yaml
+id: TASK-035
+status: done
+priority: high
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:10.771Z
+updated_at: 2026-02-15T00:21:11.057Z
+tags:
+  - integration
+history:
+  - ts: 2026-02-15T00:21:10.771Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-15T00:21:11.057Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
+```
+
+### TASK-036 · Update CLAUDE.md with current state + known issues
+
+```yaml
+id: TASK-036
+status: done
+priority: medium
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:11.352Z
+updated_at: 2026-02-15T00:21:11.682Z
+tags:
+  - docs
+history:
+  - ts: 2026-02-15T00:21:11.352Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-15T00:21:11.682Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
+```
+
+### TASK-037 · Wire auto-restore to OpenClaw cron (consume.sh outputs JSON, agent needs to create cron job)
+
+```yaml
+id: TASK-037
+status: done
+priority: high
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:19.216Z
+updated_at: 2026-02-15T00:37:58.909Z
+tags:
+  - skill
+history:
+  - ts: 2026-02-15T00:21:19.216Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-15T00:37:58.909Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
+```
+
+### TASK-038 · Trip end notification to Mel (restore.sh outputs JSON, agent needs to send message)
+
+```yaml
+id: TASK-038
+status: done
+priority: medium
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:19.540Z
+updated_at: 2026-02-15T00:37:59.206Z
+tags:
+  - skill
+history:
+  - ts: 2026-02-15T00:21:19.540Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-15T00:37:59.206Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
+```
+
+### TASK-039 · Verify WalletConnect provider actually works (TASK-026 may be incomplete)
+
+```yaml
+id: TASK-039
+status: backlog
+priority: medium
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:19.830Z
+updated_at: 2026-02-15T00:21:19.830Z
+tags:
+  - web
+  - bugfix
+history:
+  - ts: 2026-02-15T00:21:19.830Z
+    who: "@reggie"
+    action: created
+```
+
+### TASK-040 · Vercel root dir fix: remove bad buildCommand from root vercel.json
+
+```yaml
+id: TASK-040
+status: done
+priority: high
+assigned_to: null
+claimed_by: null
+created_by: "@reggie"
+created_at: 2026-02-15T00:21:20.162Z
+updated_at: 2026-02-15T00:21:20.485Z
+tags:
+  - devops
+history:
+  - ts: 2026-02-15T00:21:20.162Z
+    who: "@reggie"
+    action: created
+  - ts: 2026-02-15T00:21:20.485Z
+    who: "@reggie"
+    action: completed
+    from: backlog
+    to: done
 ```
