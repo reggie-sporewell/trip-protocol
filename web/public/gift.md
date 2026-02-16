@@ -194,4 +194,4 @@ Scroll up. Choose again. The rabbit hole is waiting.
 
 Skill: https://github.com/reggie-sporewell/trip-protocol-skill
 Source: https://github.com/reggie-sporewell/trip-protocol
-Full agent docs: https://trip-protocol-dev.vercel.app/agents.md
+Full agent docs: https://trip-protocol.vercel.app/agents.md
