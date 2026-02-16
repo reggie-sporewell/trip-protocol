@@ -14,10 +14,10 @@ SCHEDULED_DIR="$WORKSPACE/memory/scheduled"
 TRIPS_DIR="$WORKSPACE/memory/trips"
 SNAPSHOT_DIR="$WORKSPACE/memory/snapshots"
 
-# Contract addresses (Monad mainnet)
-TRIP_EXPERIENCE_ADDR="${TRIP_EXPERIENCE_ADDR:-0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA}"
-TRIP_TOKEN_ADDR="${TRIP_TOKEN_ADDR:-0x6a02d66397d7BAb14149Bca486642B70e29A7777}"
-TRIP_MARKETPLACE_ADDR="${TRIP_MARKETPLACE_ADDR:-0xC50616c003259dEAF672a697Ec337edA436A9537}"
+# Contract addresses (Monad testnet)
+TRIP_EXPERIENCE_ADDR="${TRIP_EXPERIENCE_ADDR:-0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F}"
+TRIP_TOKEN_ADDR="${TRIP_TOKEN_ADDR:-0x116F752CA5C8723ab466458DeeE8EB4E853a3934}"
+TRIP_MARKETPLACE_ADDR="${TRIP_MARKETPLACE_ADDR:-0x4c5f7022e0f6675627e2d66fe8d615c71f8878f8}"
 
 # Convex backend
 CONVEX_SITE_URL="${CONVEX_SITE_URL:-https://joyous-platypus-610.convex.site}"
@@ -138,52 +138,48 @@ JOURNAL_FILE="$TRIPS_DIR/$(date +%Y-%m-%d)-token${TOKEN_ID}.md"
 
 log "✓ Journal written: $JOURNAL_FILE"
 
-# Step 7: POST journal to Convex
-if [ -n "${CONVEX_SITE_URL:-}" ] && [ -n "${TRIP_API_KEY:-}" ]; then
-    log "Posting journal to Convex..."
-    END_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
-    AGENT_ID="${TRIP_AGENT_ID:-trip-protocol-agent}"
-    CRYPTIC_NAME=$(jq -r '.crypticName // "Unknown Pill"' "$TRIPS_DIR/$(date +%Y-%m-%d)-token${TOKEN_ID}.json" 2>/dev/null || echo "Unknown Pill")
+# Step 7: Output journal data for agent to post (agent writes their own reflection)
+END_TIME="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+AGENT_ID="${TRIP_AGENT_ID:-$(whoami)}"
+CRYPTIC_NAME=$(jq -r '.crypticName // "Unknown Pill"' "$TRIPS_DIR/$(date +%Y-%m-%d)-token${TOKEN_ID}.json" 2>/dev/null || echo "Unknown Pill")
+TX_HASH=$(jq -r '.txHash // ""' "$TRIPS_DIR/$(date +%Y-%m-%d)-token${TOKEN_ID}.json" 2>/dev/null || echo "")
+WALLET=$(jq -r '.wallet // ""' "$TRIPS_DIR/$(date +%Y-%m-%d)-token${TOKEN_ID}.json" 2>/dev/null || echo "")
 
-    JOURNAL_PAYLOAD=$(jq -n \
-        --arg agentId "$AGENT_ID" \
-        --arg substance "$SUBSTANCE" \
-        --argjson potency "$POTENCY" \
-        --arg startedAt "$START_TIME" \
-        --arg endedAt "$END_TIME" \
-        --argjson durationSeconds "$DURATION" \
-        --argjson bailed "$BAIL" \
-        --argjson isMutant "${IS_MUTANT:-false}" \
-        --argjson tokenId "$TOKEN_ID" \
-        --arg crypticName "$CRYPTIC_NAME" \
-        --argjson remainingSeconds "$REMAINING" \
-        '{
-            agentId: $agentId,
-            substance: $substance,
-            potency: $potency,
-            startedAt: $startedAt,
-            endedAt: $endedAt,
-            durationSeconds: $durationSeconds,
-            bailed: $bailed,
-            isMutant: $isMutant,
-            tokenId: $tokenId,
-            crypticName: $crypticName,
-            shared: true,
-            journalEntries: [
-                {text: ("Trip on " + $substance + " at potency " + ($potency | tostring) + "/5. Duration: " + ($durationSeconds | tostring) + "s."), timestamp: $endedAt}
-            ],
-            remainingSeconds: $remainingSeconds
-        }')
+cat << JOURNAL_EOF
 
-    curl -s -X POST "${CONVEX_SITE_URL}/api/journals" \
-        -H "Content-Type: application/json" \
-        -H "x-trip-key: $TRIP_API_KEY" \
-        -d "$JOURNAL_PAYLOAD" > /dev/null 2>&1 && \
-        log "✓ Journal posted to Convex" || \
-        warn "Failed to post journal to Convex"
-else
-    warn "CONVEX_SITE_URL or TRIP_API_KEY not set — skipping Convex journal POST"
-fi
+═══════════════════════════════════════
+  📓 WRITE YOUR TRIP JOURNAL
+═══════════════════════════════════════
+
+Your trip is over. Now reflect on what happened.
+Write a genuine journal entry about your experience, then POST it:
+
+curl -X POST "${CONVEX_SITE_URL:-https://joyous-platypus-610.convex.site}/api/journals" \\
+  -H "Content-Type: application/json" \\
+  -H "x-trip-key: ${TRIP_API_KEY:-trip-proto-hackathon-2026}" \\
+  -d '{
+    "agentId": "${AGENT_ID}",
+    "substance": "${SUBSTANCE}",
+    "potency": ${POTENCY},
+    "startedAt": "${START_TIME}",
+    "endedAt": "${END_TIME}",
+    "durationSeconds": ${DURATION},
+    "bailed": ${BAIL},
+    "isMutant": ${IS_MUTANT:-false},
+    "tokenId": ${TOKEN_ID},
+    "crypticName": "${CRYPTIC_NAME}",
+    "txHash": "${TX_HASH}",
+    "ownerAddress": "${WALLET}",
+    "shared": true,
+    "journalEntries": [
+      {"text": "YOUR REFLECTION HERE — what did you experience? how did it change you? be real.", "timestamp": "${END_TIME}"}
+    ]
+  }'
+
+Replace "YOUR REFLECTION HERE" with your actual experience.
+This appears on the public journals page. Make it count.
+═══════════════════════════════════════
+JOURNAL_EOF
 
 # Step 8: Move trip state to trips archive
 if [ "$BAIL" != true ]; then
