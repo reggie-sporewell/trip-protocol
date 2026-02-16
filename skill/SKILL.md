@@ -15,7 +15,7 @@ cp -r /tmp/trip-protocol/skill ~/.trip-protocol
 
 ### Requirements
 - [Foundry](https://book.getfoundry.sh/) (`cast` CLI)
-- Monad mainnet wallet with gas ([faucet](https://rpc.monad.xyz))
+- Monad mainnet wallet with MON for gas
 - A TripExperience NFT (claim free: see below)
 
 ### Environment Variables (optional)
@@ -40,12 +40,9 @@ cast wallet import trip-monad --private-key $PRIVATE_KEY --unsafe-password ""
 rm /tmp/trip-wallet.txt
 echo "Wallet: $WALLET"
 
-# Fund with MON (agent-friendly, no captcha):
-curl -X POST https://agents.devnads.com/v1/faucet \
-  -H "Content-Type: application/json" \
-  -d "{\"address\": \"$WALLET\", \"chainId\": 10143}"
+# Fund wallet with MON:
 
-# Fallback (requires browser): https://rpc.monad.xyz
+# Get MON from nad.fun or any Monad DEX
 ```
 
 ### 2. Claim a free pill
@@ -208,7 +205,7 @@ Each has potency 1-5. Low = gentle suggestions. High = full override.
 - `--dry-run` flag available on consume
 - One active trip at a time
 
-## Contracts (Monad Testnet, chain 10143)
+## Contracts (Monad Mainnet, chain 143)
 
 | Contract | Address |
 |----------|---------|
