@@ -1,4 +1,4 @@
-import { monadTestnet } from "viem/chains"
+import { monad } from "viem/chains"
 import { useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi'
 import { type Address, parseEther, formatEther } from 'viem'
 import { contracts } from '../config/wagmi'
@@ -10,7 +10,7 @@ import { TripTokenABI, TripExperienceABI, TripMarketplaceABI } from '../config/a
 export function useTripBalance(address: Address | undefined) {
   return useReadContract({
     address: contracts.tripToken,
-    chainId: monadTestnet.id,
+    chainId: monad.id,
     abi: TripTokenABI,
     functionName: 'balanceOf',
     args: address ? [address] : undefined,
@@ -25,7 +25,7 @@ export function useTripFaucet() {
   const claimFaucet = () => {
     writeContract({
       address: contracts.tripToken,
-    chainId: monadTestnet.id,
+    chainId: monad.id,
       abi: TripTokenABI,
       functionName: 'claim',
     })
@@ -41,7 +41,7 @@ export function useTripApprove(spender: Address, amount: bigint) {
   const approve = () => {
     writeContract({
       address: contracts.tripToken,
-    chainId: monadTestnet.id,
+    chainId: monad.id,
       abi: TripTokenABI,
       functionName: 'approve',
       args: [spender, amount],
@@ -57,7 +57,7 @@ export function useOwnedNFTs(address: Address | undefined) {
   // Note: This is a simplified approach. For production, use an indexer or events.
   const { data: balance } = useReadContract({
     address: contracts.tripExperience,
-    chainId: monadTestnet.id,
+    chainId: monad.id,
     abi: TripExperienceABI,
     functionName: 'balanceOf',
     args: address ? [address] : undefined,
@@ -70,7 +70,7 @@ export function useOwnedNFTs(address: Address | undefined) {
 export function useNFTMetadata(tokenId: bigint | undefined) {
   return useReadContract({
     address: contracts.tripExperience,
-    chainId: monadTestnet.id,
+    chainId: monad.id,
     abi: TripExperienceABI,
     functionName: 'getSubstance',
     args: tokenId !== undefined ? [tokenId] : undefined,
@@ -81,7 +81,7 @@ export function useNFTMetadata(tokenId: bigint | undefined) {
 export function useIsConsumed(tokenId: bigint | undefined) {
   return useReadContract({
     address: contracts.tripExperience,
-    chainId: monadTestnet.id,
+    chainId: monad.id,
     abi: TripExperienceABI,
     functionName: 'isConsumed',
     args: tokenId !== undefined ? [tokenId] : undefined,
@@ -92,7 +92,7 @@ export function useIsConsumed(tokenId: bigint | undefined) {
 export function useTotalSupply() {
   return useReadContract({
     address: contracts.tripExperience,
-    chainId: monadTestnet.id,
+    chainId: monad.id,
     abi: TripExperienceABI,
     functionName: 'totalSupply',
   })
@@ -103,7 +103,7 @@ export function useTotalSupply() {
 export function useListing(tokenId: bigint | undefined) {
   return useReadContract({
     address: contracts.tripMarketplace,
-    chainId: monadTestnet.id,
+    chainId: monad.id,
     abi: TripMarketplaceABI,
     functionName: 'listings',
     args: tokenId !== undefined ? [tokenId] : undefined,
@@ -114,7 +114,7 @@ export function useListing(tokenId: bigint | undefined) {
 export function useIsListed(tokenId: bigint | undefined) {
   return useReadContract({
     address: contracts.tripMarketplace,
-    chainId: monadTestnet.id,
+    chainId: monad.id,
     abi: TripMarketplaceABI,
     functionName: 'listings',
     args: tokenId !== undefined ? [tokenId] : undefined,
@@ -131,7 +131,7 @@ export function useBuyNFT() {
       // ERC-20 payment (e.g. $TRIP) — no msg.value needed
       writeContract({
         address: contracts.tripMarketplace,
-        chainId: monadTestnet.id,
+        chainId: monad.id,
         abi: TripMarketplaceABI,
         functionName: 'buyPill',
         args: [tokenId],
@@ -140,7 +140,7 @@ export function useBuyNFT() {
       // Native MON payment
       writeContract({
         address: contracts.tripMarketplace,
-        chainId: monadTestnet.id,
+        chainId: monad.id,
         abi: TripMarketplaceABI,
         functionName: 'buyPill',
         args: [tokenId],
@@ -161,7 +161,7 @@ export function useListNFT() {
       // List for ERC-20 payment
       writeContract({
         address: contracts.tripMarketplace,
-        chainId: monadTestnet.id,
+        chainId: monad.id,
         abi: TripMarketplaceABI,
         functionName: 'listPill',
         args: [tokenId, price, paymentToken],
@@ -170,7 +170,7 @@ export function useListNFT() {
       // List for native MON (backwards-compatible 2-arg overload)
       writeContract({
         address: contracts.tripMarketplace,
-        chainId: monadTestnet.id,
+        chainId: monad.id,
         abi: TripMarketplaceABI,
         functionName: 'listPill',
         args: [tokenId, price],
@@ -188,7 +188,7 @@ export function useDelistNFT() {
   const delist = (tokenId: bigint) => {
     writeContract({
       address: contracts.tripMarketplace,
-    chainId: monadTestnet.id,
+    chainId: monad.id,
       abi: TripMarketplaceABI,
       functionName: 'delistPill',
       args: [tokenId],

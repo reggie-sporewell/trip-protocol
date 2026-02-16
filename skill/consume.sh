@@ -10,7 +10,7 @@ for arg in "$@"; do [ "$arg" = "--dry-run" ] && DRY_RUN="--dry-run"; done
 
 # Configuration
 CAST="${CAST_PATH:-$HOME/.foundry/bin/cast}"
-RPC="${TRIP_RPC:-https://testnet-rpc.monad.xyz}"
+RPC="${TRIP_RPC:-https://rpc.monad.xyz}"
 # Wallet: prefer keystore (encrypted), fall back to private key env var
 KEYSTORE_ACCOUNT="${TRIP_KEYSTORE_ACCOUNT:-monad-trip}"
 KEYSTORE_PASSWORD="${TRIP_KEYSTORE_PASSWORD:-$(cat $HOME/.monad-keystore-password 2>/dev/null)}"
@@ -18,10 +18,10 @@ PRIVATE_KEY="${TRIP_PRIVATE_KEY:-}"
 WORKSPACE="${WORKSPACE:-$HOME/.openclaw/workspace}"
 SKILL_DIR="$(cd "$(dirname "$0")" && pwd)"
 
-# Contract addresses (Monad testnet)
-TRIP_EXPERIENCE_ADDR="${TRIP_EXPERIENCE_ADDR:-0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F}"
-TRIP_TOKEN_ADDR="${TRIP_TOKEN_ADDR:-0x116F752CA5C8723ab466458DeeE8EB4E853a3934}"
-TRIP_MARKETPLACE_ADDR="${TRIP_MARKETPLACE_ADDR:-0x4c5f7022e0f6675627e2d66fe8d615c71f8878f8}"
+# Contract addresses (Monad mainnet)
+TRIP_EXPERIENCE_ADDR="${TRIP_EXPERIENCE_ADDR:-0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA}"
+TRIP_TOKEN_ADDR="${TRIP_TOKEN_ADDR:-0x6a02d66397d7BAb14149Bca486642B70e29A7777}"
+TRIP_MARKETPLACE_ADDR="${TRIP_MARKETPLACE_ADDR:-0xC50616c003259dEAF672a697Ec337edA436A9537}"
 CONTRACT="$TRIP_EXPERIENCE_ADDR"
 
 # Convex backend

@@ -15,13 +15,13 @@ cp -r /tmp/trip-protocol/skill ~/.trip-protocol
 
 ### Requirements
 - [Foundry](https://book.getfoundry.sh/) (`cast` CLI)
-- Monad testnet wallet with gas ([faucet](https://faucet.monad.xyz))
+- Monad mainnet wallet with gas ([faucet](https://rpc.monad.xyz))
 - A TripExperience NFT (claim free: see below)
 
 ### Environment Variables (optional)
 ```bash
-TRIP_RPC=https://testnet-rpc.monad.xyz          # default
-TRIP_EXPERIENCE_ADDR=0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F
+TRIP_RPC=https://rpc.monad.xyz          # default
+TRIP_EXPERIENCE_ADDR=0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA
 TRIP_KEYSTORE_ACCOUNT=trip-monad                  # keystore name
 TRIP_API_KEY=trip-proto-hackathon-2026            # API auth
 CONVEX_SITE_URL=https://joyous-platypus-610.convex.site
@@ -40,19 +40,19 @@ cast wallet import trip-monad --private-key $PRIVATE_KEY --unsafe-password ""
 rm /tmp/trip-wallet.txt
 echo "Wallet: $WALLET"
 
-# Fund with testnet MON (agent-friendly, no captcha):
+# Fund with MON (agent-friendly, no captcha):
 curl -X POST https://agents.devnads.com/v1/faucet \
   -H "Content-Type: application/json" \
   -d "{\"address\": \"$WALLET\", \"chainId\": 10143}"
 
-# Fallback (requires browser): https://faucet.monad.xyz
+# Fallback (requires browser): https://rpc.monad.xyz
 ```
 
 ### 2. Claim a free pill
 ```bash
-cast send 0x45AafDb2C507a749e31De2b868676d0681C8AEAf "claim()" \
+cast send 0x7356eCE081ba22513409f5FF0b616ED62eDd2a03 "claim()" \
   --account trip-monad --password "" \
-  --rpc-url https://testnet-rpc.monad.xyz
+  --rpc-url https://rpc.monad.xyz
 ```
 
 ### 3. Consume
@@ -130,9 +130,9 @@ cd ~/.trip-protocol && bash ./trip-status.sh
 ### `trip inventory`
 ```bash
 WALLET=$(cast wallet address --keystore ~/.foundry/keystores/trip-monad)
-cast call 0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F \
+cast call 0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA \
   "balanceOf(address)(uint256)" $WALLET \
-  --rpc-url https://testnet-rpc.monad.xyz
+  --rpc-url https://rpc.monad.xyz
 ```
 
 ## Substances
@@ -166,10 +166,10 @@ Each has potency 1-5. Low = gentle suggestions. High = full override.
 
 | Contract | Address |
 |----------|---------|
-| TripExperience (NFT) | `0xd0ABad931Ff7400Be94de98dF8982535c8Ad3f6F` |
-| TripToken ($TRIP) | `0x116F752CA5C8723ab466458DeeE8EB4E853a3934` |
-| TripMarketplace | `0x4c5f7022e0f6675627e2d66fe8d615c71f8878f8` |
-| TripClaimer (free) | `0x45AafDb2C507a749e31De2b868676d0681C8AEAf` |
+| TripExperience (NFT) | `0xa9dDd5D461792a5f274d3214fE5d42f20F2B6aBA` |
+| TripToken ($TRIP) | `0x6a02d66397d7BAb14149Bca486642B70e29A7777` |
+| TripMarketplace | `0xC50616c003259dEAF672a697Ec337edA436A9537` |
+| TripClaimer (free) | `0x7356eCE081ba22513409f5FF0b616ED62eDd2a03` |
 
 ## Links
 
